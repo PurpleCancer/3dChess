@@ -5,6 +5,9 @@
 #include <iostream>
 #include "Board.h"
 
+#define BOARD_HEIGHT 8
+#define BOARD_WIDTH 8
+
 using namespace std;
 
 void Board::Print()
@@ -17,9 +20,9 @@ void Board::Print()
     whitePlayer->PleaseCompleteTheSnapshot(boardSnapshot);
     blackPlayer->PleaseCompleteTheSnapshot(boardSnapshot);
 
-    for(int i = 7; i >= 0; --i)
+    for(int i = BOARD_HEIGHT-1; i >= 0; --i)
     {
-        for(int j = 0; j < 8; ++j)
+        for(int j = 0; j < BOARD_WIDTH; ++j)
         {
             switch(boardSnapshot[i][j].type)
             {
