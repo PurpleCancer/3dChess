@@ -7,6 +7,7 @@
 
 #include <string>
 #include "Board.h"
+#include "Delarations.h"
 
 using namespace std;
 

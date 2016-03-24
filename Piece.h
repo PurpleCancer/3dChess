@@ -5,8 +5,7 @@
 #ifndef INC_3DCHESS_PIECE_H
 #define INC_3DCHESS_PIECE_H
 
-
-enum PieceType { Pawn, Rook, Knight, Bishop, Queen, King, None };
+#include "Delarations.h"
 
 class Piece {
 public:

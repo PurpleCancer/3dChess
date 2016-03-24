@@ -5,16 +5,14 @@
 #include <iostream>
 #include "Board.h"
 
-#define BOARD_HEIGHT 8
-#define BOARD_WIDTH 8
 
 using namespace std;
 
 void Board::Print()
 {
-    for(int i = 0; i < 8; ++i)
+    for(int i = 0; i < BOARD_HEIGHT; ++i)
     {
-        for(int j = 0; j < 8; ++j)
+        for(int j = 0; j < BOARD_WIDTH; ++j)
         boardSnapshot[i][j].type = None;
     }
     whitePlayer->PleaseCompleteTheSnapshot(boardSnapshot);
@@ -71,9 +69,9 @@ Board::Board()
     blackPlayer = new Player(Black);
     turn = White;
 
-    boardSnapshot = new Tile*[8];
-    for(int i = 0; i < 8; ++i)
+    boardSnapshot = new Tile*[BOARD_HEIGHT];
+    for(int i = 0; i < BOARD_HEIGHT; ++i)
     {
-        boardSnapshot[i] = new Tile[8];
+        boardSnapshot[i] = new Tile[BOARD_WIDTH];
     }
 }

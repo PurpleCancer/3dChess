@@ -6,6 +6,7 @@
 #define INC_3DCHESS_BOARD_H
 
 #include "Player.h"
+#include "Delarations.h"
 
 class Board {
 public:

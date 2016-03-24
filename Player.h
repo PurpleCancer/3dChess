@@ -5,18 +5,11 @@
 #ifndef INC_3DCHESS_PLAYER_H
 #define INC_3DCHESS_PLAYER_H
 
-#include "Piece.h"
 #include <vector>
+#include "Piece.h"
+#include "Delarations.h"
 
 using namespace std;
-
-enum Colour {White, Black};
-
-struct Tile
-{
-    Colour colour;
-    PieceType type;
-};
 
 class Player {
 public:
