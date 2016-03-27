@@ -5,12 +5,17 @@
 #ifndef INC_3DCHESS_BOARD_H
 #define INC_3DCHESS_BOARD_H
 
+#include <string>
+#include <regex>
 #include "Player.h"
 #include "Delarations.h"
+
+using namespace std;
 
 class Board {
 public:
     void Print();
+    void Move(const string s);
 
     Board();
 private:
@@ -18,6 +23,7 @@ private:
     Player* blackPlayer;
     Colour turn;
     Tile** boardSnapshot;
+    regex* pattern;
 };
 
 

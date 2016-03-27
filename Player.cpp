@@ -77,3 +77,8 @@ Player::Player(Colour colour)
     Piece k(King, 5, firstRow);
     myPieces.push_back(k);
 }
+
+Player::Player() {
+
+}
+

@@ -25,3 +25,8 @@ Piece::Piece(PieceType type, int column , int row)
     this->column = column;
     this->row = row;
 }
+
+Piece::Piece() {
+
+}
+
