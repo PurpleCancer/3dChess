@@ -16,7 +16,7 @@ using namespace std;
 class Game {
 public:
     void Print();
-    void Move(const string s);
+    int Move();
     void printGameInfo();
 
     Game(string name);

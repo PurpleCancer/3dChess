@@ -11,9 +11,17 @@ void Game::Print()
     board->Print();
 }
 
-void Game::Move(const string s)
+int Game::Move()
 {
-    board->Move(s);
+    string move = reader->getNextMove();
+    if(move.empty())
+        //no more moves
+        return 1;
+    else
+    {
+        board->Move(move);
+        return 0;
+    }
 }
 
 void Game::printGameInfo()

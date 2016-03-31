@@ -7,9 +7,13 @@ Game* game;
 
 int main()
 {
-    game = new Game("C:\\Users\\Jan\\Desktop\\semestr4\\grafika\\saemisch_nimzowitsch_1923.pgn");
+    game = new Game("<pgn file>");
     //game->Print();
     game->printGameInfo();
+    cout<<endl;
+
+    while(!game->Move());
+
 
 //    game->Move("e4");
 //    game->Move("Kf3");

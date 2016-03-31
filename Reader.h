@@ -6,6 +6,7 @@
 #define INC_3DCHESS_READER_H
 
 #include <string>
+#include <queue>
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -21,6 +22,7 @@ public:
     string getResult();
     string getWhite();
     string getBlack();
+    string getNextMove();
 
     Reader(string name);
     ~Reader();
@@ -32,8 +34,9 @@ private:
     string white="";
     string black="";
     ifstream file;
-    regex* tags;
-    regex* moves;
+    regex* tags_pattern;
+    regex* moves_pattern;
+    queue <string> moves;
 
     Reader();
 };
