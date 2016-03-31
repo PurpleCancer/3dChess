@@ -6,6 +6,7 @@
 #define INC_3DCHESS_PLAYER_H
 
 #include <vector>
+#include <iostream>
 #include "Piece.h"
 #include "Delarations.h"
 

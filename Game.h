@@ -5,6 +5,7 @@
 #ifndef INC_3DCHESS_GAME_H
 #define INC_3DCHESS_GAME_H
 
+#include <iostream>
 #include <string>
 #include "Board.h"
 #include "Reader.h"
@@ -16,6 +17,7 @@ class Game {
 public:
     void Print();
     void Move(const string s);
+    void printGameInfo();
 
     Game(string name);
     ~Game();

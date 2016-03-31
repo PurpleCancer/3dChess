@@ -6,16 +6,24 @@
 #define INC_3DCHESS_READER_H
 
 #include <string>
+#include <iostream>
 #include <fstream>
+#include <regex>
 #include "Delarations.h"
 
 using namespace std;
 
 class Reader {
 public:
+    string getEvent();
+    string getSite();
+    string getDate();
+    string getResult();
+    string getWhite();
+    string getBlack();
+
     Reader(string name);
     ~Reader();
-
 private:
     string event="";
     string site="";
@@ -24,6 +32,8 @@ private:
     string white="";
     string black="";
     ifstream file;
+    regex* tags;
+    regex* moves;
 
     Reader();
 };

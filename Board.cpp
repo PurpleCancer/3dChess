@@ -2,7 +2,6 @@
 // Created by Jan on 24.03.2016.
 //
 
-#include <iostream>
 #include "Board.h"
 
 

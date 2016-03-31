@@ -2,8 +2,6 @@
 // Created by Jan on 24.03.2016.
 //
 
-#include <iostream>
-#include <vector>
 #include "Player.h"
 
 using namespace std;
