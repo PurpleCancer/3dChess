@@ -14,7 +14,9 @@ using namespace std;
 class Player {
 public:
     void PleaseCompleteTheSnapshot(Tile** snap);
+
     Player(Colour colour);
+    ~Player();
 private:
     Player();
     Colour colour;

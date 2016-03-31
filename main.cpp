@@ -7,7 +7,7 @@ Game* game;
 
 int main()
 {
-    game = new Game();
+    game = new Game("saemisch_nimzowitsch_1923.pgn");
     game->Print();
     game->Move("e4");
     game->Move("Kf3");
@@ -18,6 +18,8 @@ int main()
     game->Move("Bb5xc6");
     game->Move("O-O");
     game->Move("O-O-O");
+
+    delete game;
 
     return 0;
 }

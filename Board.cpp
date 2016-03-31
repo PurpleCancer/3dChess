@@ -156,3 +156,17 @@ Board::Board()
 
     pattern = new regex("([KQRNB])?([a-h])?([1-8])?(x)?([a-h])([1-8])(=[KQRNB])?[+#]?");
 }
+
+Board::~Board()
+{
+    delete whitePlayer;
+    delete blackPlayer;
+    for(int i = 0; i < BOARD_HEIGHT; ++i)
+    {
+        delete boardSnapshot[i];
+    }
+    delete boardSnapshot;
+    delete pattern;
+}
+
+

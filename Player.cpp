@@ -78,7 +78,12 @@ Player::Player(Colour colour)
     myPieces.push_back(k);
 }
 
-Player::Player() {
+Player::Player()
+{
 
 }
 
+Player::~Player()
+{
+    myPieces.clear();
+}

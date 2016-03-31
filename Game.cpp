@@ -14,7 +14,19 @@ void Game::Move(const string s)
     board->Move(s);
 }
 
-Game::Game()
+Game::Game(string name)
 {
     board = new Board();
+    reader = new Reader(name);
+}
+
+Game::Game()
+{
+
+}
+
+Game::~Game()
+{
+    delete board;
+    delete reader;
 }

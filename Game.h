@@ -7,6 +7,7 @@
 
 #include <string>
 #include "Board.h"
+#include "Reader.h"
 #include "Delarations.h"
 
 using namespace std;
@@ -16,15 +17,18 @@ public:
     void Print();
     void Move(const string s);
 
-    Game();
-
+    Game(string name);
+    ~Game();
 private:
     string event="";
+    string site="";
     string date="";
     string result="";
     string white="";
     string black="";
     Board* board;
+    Reader* reader;
+    Game();
 };
 
 

@@ -18,6 +18,7 @@ public:
     void Move(const string s);
 
     Board();
+    ~Board();
 private:
     Player* whitePlayer;
     Player* blackPlayer;

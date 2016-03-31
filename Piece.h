@@ -14,6 +14,7 @@ public:
     PieceType getType();
 
     Piece(PieceType type, int column, int row);
+    ~Piece();
 private:
     PieceType type;
     int column;
