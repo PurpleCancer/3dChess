@@ -15,6 +15,7 @@ using namespace std;
 
 class Board {
 public:
+    void UpdateSnapshot();
     void Print();
     void Move(const string s);
 

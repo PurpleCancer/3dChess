@@ -15,6 +15,8 @@ using namespace std;
 class Player {
 public:
     void PleaseCompleteTheSnapshot(Tile** snap);
+    void FindPieceToMove(PieceType type, int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
+    void FindPieceToTake(int targetColumn, int targetRow);
 
     Player(Colour colour);
     ~Player();

@@ -19,6 +19,21 @@ PieceType Piece::getType()
     return type;
 }
 
+void Piece::setColumn(int column)
+{
+    this->column = column;
+}
+
+void Piece::setRow(int row)
+{
+    this->row = row;
+}
+
+void Piece::setType(PieceType type)
+{
+    this->type = type;
+}
+
 Piece::Piece(PieceType type, int column , int row)
 {
     this->type = type;

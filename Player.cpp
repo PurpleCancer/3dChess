@@ -15,6 +15,49 @@ void Player::PleaseCompleteTheSnapshot(Tile **snap)
     }
 }
 
+void Player::FindPieceToMove(PieceType type, int startColumn, int startRow, int targetColumn, int targetRow,
+                              Tile **boardSnapshot)
+{
+    //cout<<type<<' '<<startColumn<<' '<<startRow<<' '<<targetColumn<<' '<<targetRow<<' '<<endl;
+    int forward = (colour == White) ? 1 : -1;     //'forward' for a player
+    switch(type)
+    {
+        case Pawn:
+            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+            {
+                if(     //moving one tile
+                        (type == it->getType() && startColumn == 0 && targetColumn == it->getColumn() && targetRow == it->getRow() + forward) ||
+                        //moving two tiles
+                        (type == it->getType() && startColumn == 0 && targetColumn == it->getColumn() && targetRow == it->getRow() + 2*forward &&
+                            boardSnapshot[it->getRow() + forward - 1][targetColumn - 1].type == None) ||
+                        //taking diagonally
+                        (type == it->getType() && startColumn != 0 && startColumn == it->getColumn() && targetRow == it->getRow() + forward))
+                {
+                    it->setColumn(targetColumn);
+                    it->setRow(targetRow);
+                    break;
+                }
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+void Player::FindPieceToTake(int targetColumn, int targetRow)
+{
+    //add en passant
+    for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+    {
+        if(it->getColumn() == targetColumn && it->getRow() == targetRow)
+        {
+            myPieces.erase(it);
+            break;
+        }
+    }
+}
+
+
 Player::Player(Colour colour)
 {
     this->colour = colour;
@@ -85,3 +128,6 @@ Player::~Player()
 {
     myPieces.clear();
 }
+
+
+

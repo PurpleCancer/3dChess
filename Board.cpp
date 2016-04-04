@@ -7,15 +7,20 @@
 
 using namespace std;
 
-void Board::Print()
+void Board::UpdateSnapshot()
 {
     for(int i = 0; i < BOARD_HEIGHT; ++i)
     {
         for(int j = 0; j < BOARD_WIDTH; ++j)
-        boardSnapshot[i][j].type = None;
+            boardSnapshot[i][j].type = None;
     }
     whitePlayer->PleaseCompleteTheSnapshot(boardSnapshot);
     blackPlayer->PleaseCompleteTheSnapshot(boardSnapshot);
+}
+
+void Board::Print()
+{
+    UpdateSnapshot();
 
     for(int i = BOARD_HEIGHT-1; i >= 0; --i)
     {
@@ -73,57 +78,93 @@ void Board::Move(const string s)
         match_results<string::const_iterator> result;
         regex_match(s, result, *pattern);
 
+        PieceType type = None;
+        PieceType promotion = None;
+
+        int startColumn;
+        int startRow;
+        int targetColumn;
+        int targetRow;
+
+        bool take;
 
         //into natural language
         if(result[1].str().empty())
+        {
             cout<<"Pawn ";
+            type = Pawn;
+        }
         else switch(result[1].str()[0])
             {
                 case 'K':
                     cout<<"King ";
+                    type = King;
                     break;
                 case 'Q':
                     cout<<"Queen ";
+                    type = Queen;
                     break;
                 case 'R':
                     cout<<"Rook ";
+                    type = Rook;
                     break;
                 case 'N':
                     cout<<"Knight ";
+                    type = Knight;
                     break;
                 case 'B':
                     cout<<"Bishop ";
+                    type = Bishop;
                     break;
                 default:
                     cout<<"None ";
                     break;
             }
         if(!result[2].str().empty())
+        {
             cout<<"in row "<<result[2]<<", ";
+            startColumn = result[2].str()[0] - '`';   //for a to equal 1 and so on
+        }
+        else startColumn  = 0;
+
         if(!result[3].str().empty())
+        {
             cout<<"in column "<<result[3]<<", ";
+            startRow = result[3].str()[0] - '0';
+        }
+        else startRow = 0;
+
         if(!result[4].str().empty())
+        {
             cout<<"took and ";
+            take = true;
+        }
+        else take = false;
+
         cout<<"moved to "<<result[5]<<result[6];
+        targetColumn = result[5].str()[0] - '`';
+        targetRow = result[6].str()[0] - '0';
+
         if(!result[7].str().empty())
         {
             cout<<" and got promoted into a ";
             switch(result[7].str()[1])
             {
-                case 'K':
-                    cout<<"King ";
-                    break;
                 case 'Q':
                     cout<<"Queen ";
+                    promotion = Queen;
                     break;
                 case 'R':
                     cout<<"Rook ";
+                    promotion = Rook;
                     break;
                 case 'N':
                     cout<<"Knight ";
+                    promotion = Knight;
                     break;
                 case 'B':
                     cout<<"Bishop ";
+                    promotion = Bishop;
                     break;
                 default:
                     cout<<"None ";
@@ -131,6 +172,24 @@ void Board::Move(const string s)
             }
         }
         cout<<endl;
+
+        UpdateSnapshot();
+        switch (turn)
+        {
+            case White:
+                whitePlayer->FindPieceToMove(type, startColumn, startRow, targetColumn, targetRow, boardSnapshot);
+                if(take)blackPlayer->FindPieceToTake(targetColumn, targetRow);
+                turn = Black;
+                break;
+            case Black:
+                blackPlayer->FindPieceToMove(type, startColumn, startRow, targetColumn, targetRow, boardSnapshot);
+                if(take)whitePlayer->FindPieceToTake(targetColumn, targetRow);
+                turn = White;
+                break;
+            default:
+                cout<<"Kolejka nieznanego gracza"<<endl;
+                break;
+        }
 
         /*int j = 0;
         for(size_t i = 1; i < result.size(); ++i, ++j)

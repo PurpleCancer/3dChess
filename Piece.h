@@ -13,6 +13,10 @@ public:
     int getRow();
     PieceType getType();
 
+    void setColumn(int column);
+    void setRow(int row);
+    void setType(PieceType type);
+
     Piece(PieceType type, int column, int row);
     ~Piece();
 private:
