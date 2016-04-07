@@ -11,7 +11,7 @@
 
 enum Colour { White, Black };
 
-enum PieceType { Pawn, Rook, Knight, Bishop, Queen, King, None };
+enum PieceType { None, Pawn, Rook, Knight, Bishop, Queen, King };
 
 struct Tile
 {

@@ -23,6 +23,7 @@ public:
 private:
     Player();
     int AbsoluteInt(int x);
+    bool CanMoveDiagonally(int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
     Colour colour;
     vector <Piece> myPieces;
 };

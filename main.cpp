@@ -14,17 +14,11 @@ int main()
 
     //while(!game->Move());
 
-    game->Move();
-    game->Print();
-
-    game->Move();
-    game->Print();
-
-    game->Move();
-    game->Print();
-
-    game->Move();
-    game->Print();
+    for(int i = 0; i < 12; ++i)
+    {
+        game->Move();
+        game->Print();
+    }
 
 
     delete game;

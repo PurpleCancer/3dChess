@@ -54,7 +54,23 @@ void Player::FindPieceToMove(PieceType type, int startColumn, int startRow, int 
                     {
                         it->setColumn(targetColumn);
                         it->setRow(targetRow);
+                        break;
                     }
+                }
+            }
+            break;
+        case Bishop:
+            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+            {
+                if(type == it->getType() && ((startColumn == 0 && startRow == 0) ||
+                                             (startColumn == it->getColumn() && startRow == 0) ||
+                                             (startColumn == 0 && startRow == it->getRow()) ||
+                                             (startColumn == it->getColumn() && startRow == it->getRow())
+                ) && CanMoveDiagonally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot))
+                {
+                    it->setColumn(targetColumn);
+                    it->setRow(targetRow);
+                    break;
                 }
             }
             break;
@@ -76,6 +92,31 @@ void Player::FindPieceToTake(int targetColumn, int targetRow)
     }
 }
 
+bool Player::CanMoveDiagonally(int startColumn, int startRow, int targetColumn, int targetRow, Tile **boardSnapshot)
+{
+    int horizontalDifference = AbsoluteInt(targetColumn - startColumn);
+    int verticalDifference = AbsoluteInt(targetRow - startRow);
+
+    if(horizontalDifference != verticalDifference)
+        return false;
+
+    int Difference = horizontalDifference;
+
+    int currentColumn = startColumn + (targetColumn - startColumn) / Difference;
+    int currentRow = startRow + (targetRow - startRow) / Difference;
+    Difference--;
+
+    while(currentColumn != targetColumn /*&& currentRow !=targetRow*/)
+    {
+        if(boardSnapshot[currentRow - 1][currentColumn - 1].type != None)
+            return false;
+        currentColumn += (targetColumn - currentColumn) / Difference;
+        currentRow += (targetRow - currentRow) / Difference;
+        Difference--;
+    }
+
+    return true;
+}
 
 Player::Player(Colour colour)
 {
