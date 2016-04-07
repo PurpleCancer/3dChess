@@ -18,116 +18,47 @@ void Player::PleaseCompleteTheSnapshot(Tile **snap)
 void Player::FindPieceToMove(PieceType type, int startColumn, int startRow, int targetColumn, int targetRow,
                               Tile **boardSnapshot)
 {
-    //cout<<type<<' '<<startColumn<<' '<<startRow<<' '<<targetColumn<<' '<<targetRow<<' '<<endl;
-    int forward = (colour == White) ? 1 : -1;     //'forward' for a player
-    switch(type)
+    bool CorrectPiece = false;
+    for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
     {
-        case Pawn:
-            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+        if(type == it->getType()
+           && ((startColumn == 0 && startRow == 0)
+               || (startColumn == it->getColumn() && startRow == 0)
+               || (startColumn == 0 && startRow == it->getRow())
+               || (startColumn == it->getColumn() && startRow == it->getRow())))
+            switch (type)
             {
-                if(     //moving one tile
-                        (type == it->getType() && startColumn == 0 && targetColumn == it->getColumn() && targetRow == it->getRow() + forward) ||
-                        //moving two tiles
-                        (type == it->getType() && startColumn == 0 && targetColumn == it->getColumn() && targetRow == it->getRow() + 2*forward &&
-                            boardSnapshot[it->getRow() + forward - 1][targetColumn - 1].type == None) ||
-                        //taking diagonally
-                        (type == it->getType() && startColumn != 0 && startColumn == it->getColumn() && targetRow == it->getRow() + forward))
-                {
-                    it->setColumn(targetColumn);
-                    it->setRow(targetRow);
+                case Pawn:
+                    CorrectPiece = (startColumn == 0 && CanPawnMove(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot))
+                       || (startColumn == it->getColumn() && CanPawnTake(it->getColumn(), it->getRow(), targetColumn, targetRow));
                     break;
-                }
-            }
-            break;
-        case Knight:
-            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
-            {
-                if(type == it->getType() && ((startColumn == 0 && startRow == 0) ||
-                            (startColumn == it->getColumn() && startRow == 0) ||
-                            (startColumn == 0 && startRow == it->getRow()) ||
-                            (startColumn == it->getColumn() && startRow == it->getRow())
-                        ))
-                {
-                    int horizontalDifference = AbsoluteInt(it->getColumn() - targetColumn);
-                    int verticalDifference = AbsoluteInt(it->getRow() - targetRow);
-                    if((horizontalDifference == 1 && verticalDifference == 2) || (horizontalDifference == 2 && verticalDifference == 1))
-                    {
-                        it->setColumn(targetColumn);
-                        it->setRow(targetRow);
-                        break;
-                    }
-                }
-            }
-            break;
-        case Bishop:
-            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
-            {
-                if(type == it->getType()
-                   && ((startColumn == 0 && startRow == 0)
-                       || (startColumn == it->getColumn() && startRow == 0)
-                       || (startColumn == 0 && startRow == it->getRow())
-                       || (startColumn == it->getColumn() && startRow == it->getRow()))
-                   && CanMoveDiagonally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot))
-                {
-                    it->setColumn(targetColumn);
-                    it->setRow(targetRow);
+                case Knight:
+                    CorrectPiece = CanKnightMove(it->getColumn(), it->getRow(), targetColumn, targetRow);
                     break;
-                }
-            }
-            break;
-        case Rook:
-            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
-            {
-                if(type == it->getType()
-                   && ((startColumn == 0 && startRow == 0)
-                       || (startColumn == it->getColumn() && startRow == 0)
-                       || (startColumn == 0 && startRow == it->getRow())
-                       || (startColumn == it->getColumn() && startRow == it->getRow()))
-                   && (CanMoveHorizontally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)
-                       || CanMoveVertically(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)))
-                {
-                    it->setColumn(targetColumn);
-                    it->setRow(targetRow);
+                case Bishop:
+                    CorrectPiece = CanMoveDiagonally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot);
                     break;
-                }
-            }
-            break;
-        case Queen:
-            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
-            {
-                if(type == it->getType()
-                   && ((startColumn == 0 && startRow == 0)
-                       || (startColumn == it->getColumn() && startRow == 0)
-                       || (startColumn == 0 && startRow == it->getRow())
-                       || (startColumn == it->getColumn() && startRow == it->getRow()))
-                   && (CanMoveHorizontally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)
-                       || CanMoveVertically(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)
-                       || CanMoveDiagonally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)))
-                {
-                    it->setColumn(targetColumn);
-                    it->setRow(targetRow);
+                case Rook:
+                    CorrectPiece = (CanMoveHorizontally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)
+                        || CanMoveVertically(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot));
                     break;
-                }
-            }
-            break;
-        case King:
-            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
-            {
-                if(type == it->getType()
-                   && ((startColumn == 0 && startRow == 0)
-                       || (startColumn == it->getColumn() && startRow == 0)
-                       || (startColumn == 0 && startRow == it->getRow())
-                       || (startColumn == it->getColumn() && startRow == it->getRow()))
-                   && CanKingMove(it->getColumn(), it->getRow(), targetColumn, targetRow))
-                {
-                    it->setColumn(targetColumn);
-                    it->setRow(targetRow);
+                case Queen:
+                    CorrectPiece = (CanMoveHorizontally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)
+                        || CanMoveVertically(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)
+                        || CanMoveDiagonally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot));
                     break;
-                }
+                case King:
+                    CorrectPiece = true;
+                    break;
+                default:
+                    break;
             }
+        if(CorrectPiece)
+        {
+            it->setColumn(targetColumn);
+            it->setRow(targetRow);
             break;
-        default:
-            break;
+        }
     }
 }
 
@@ -232,14 +163,25 @@ bool Player::CanMoveVertically(int startColumn, int startRow, int targetColumn, 
     return true;
 }
 
-bool Player::CanKingMove(int startColumn, int startRow, int targetColumn, int targetRow)
+bool Player::CanKnightMove(int startColumn, int startRow, int targetColumn, int targetRow)
 {
     int horizontalDifference = AbsoluteInt(targetColumn - startColumn);
     int verticalDifference = AbsoluteInt(targetRow - startRow);
+    return (horizontalDifference == 1 && verticalDifference == 2) || (horizontalDifference == 2 && verticalDifference == 1);
+}
 
-    if(horizontalDifference <= 1 && verticalDifference <= 1)
-        return true;
-    else return  false;
+bool Player::CanPawnMove(int startColumn, int startRow, int targetColumn, int targetRow, Tile **boardSnapshot)
+{
+    int forward = (colour == White) ? 1 : -1;     //'forward' for a player
+
+    return (targetColumn == startColumn && targetRow == startRow + forward)
+       || (targetColumn == startColumn && targetRow == startRow + 2*forward && boardSnapshot[startRow + forward - 1][startColumn - 1].type == None);
+}
+
+bool Player::CanPawnTake(int startColumn, int startRow, int targetColumn, int targetRow)
+{
+    int forward = (colour == White) ? 1 : -1;     //'forward' for a player
+    return targetRow == startRow + forward;
 }
 
 Player::Player(Colour colour)

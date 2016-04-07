@@ -7,12 +7,12 @@ Game* game;
 
 int main()
 {
-    game = new Game("C:\\Users\\Jan\\Desktop\\semestr4\\grafika\\chajes_blanco_estera_1913.pgn");
+    game = new Game("C:\\Users\\Jan\\Desktop\\semestr4\\grafika\\capablanca_p_northrop_1909.pgn");
     game->Print();
     //game->printGameInfo();
     cout<<endl;
 
-    while(!game->Move());
+    while(game->Move());
 
     /*for(int i = 0; i < 14; ++i)
     {

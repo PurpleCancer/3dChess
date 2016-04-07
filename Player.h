@@ -28,7 +28,9 @@ private:
     bool CanMoveDiagonally(int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
     bool CanMoveHorizontally(int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
     bool CanMoveVertically(int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
-    bool CanKingMove(int startColumn, int startRow, int targetColumn, int targetRow);
+    bool CanKnightMove(int startColumn, int startRow, int targetColumn, int targetRow);
+    bool CanPawnMove(int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
+    bool CanPawnTake(int startColumn, int startRow, int targetColumn, int targetRow);
     Colour colour;
     vector <Piece> myPieces;
 };
