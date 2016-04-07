@@ -17,6 +17,8 @@ public:
     void PleaseCompleteTheSnapshot(Tile** snap);
     void FindPieceToMove(PieceType type, int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
     void FindPieceToTake(int targetColumn, int targetRow);
+    void KingsideCastling();
+    void QueensideCastling();
 
     Player(Colour colour);
     ~Player();
@@ -24,6 +26,9 @@ private:
     Player();
     int AbsoluteInt(int x);
     bool CanMoveDiagonally(int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
+    bool CanMoveHorizontally(int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
+    bool CanMoveVertically(int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
+    bool CanKingMove(int startColumn, int startRow, int targetColumn, int targetRow);
     Colour colour;
     vector <Piece> myPieces;
 };

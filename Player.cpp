@@ -62,11 +62,63 @@ void Player::FindPieceToMove(PieceType type, int startColumn, int startRow, int 
         case Bishop:
             for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
             {
-                if(type == it->getType() && ((startColumn == 0 && startRow == 0) ||
-                                             (startColumn == it->getColumn() && startRow == 0) ||
-                                             (startColumn == 0 && startRow == it->getRow()) ||
-                                             (startColumn == it->getColumn() && startRow == it->getRow())
-                ) && CanMoveDiagonally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot))
+                if(type == it->getType()
+                   && ((startColumn == 0 && startRow == 0)
+                       || (startColumn == it->getColumn() && startRow == 0)
+                       || (startColumn == 0 && startRow == it->getRow())
+                       || (startColumn == it->getColumn() && startRow == it->getRow()))
+                   && CanMoveDiagonally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot))
+                {
+                    it->setColumn(targetColumn);
+                    it->setRow(targetRow);
+                    break;
+                }
+            }
+            break;
+        case Rook:
+            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+            {
+                if(type == it->getType()
+                   && ((startColumn == 0 && startRow == 0)
+                       || (startColumn == it->getColumn() && startRow == 0)
+                       || (startColumn == 0 && startRow == it->getRow())
+                       || (startColumn == it->getColumn() && startRow == it->getRow()))
+                   && (CanMoveHorizontally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)
+                       || CanMoveVertically(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)))
+                {
+                    it->setColumn(targetColumn);
+                    it->setRow(targetRow);
+                    break;
+                }
+            }
+            break;
+        case Queen:
+            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+            {
+                if(type == it->getType()
+                   && ((startColumn == 0 && startRow == 0)
+                       || (startColumn == it->getColumn() && startRow == 0)
+                       || (startColumn == 0 && startRow == it->getRow())
+                       || (startColumn == it->getColumn() && startRow == it->getRow()))
+                   && (CanMoveHorizontally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)
+                       || CanMoveVertically(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)
+                       || CanMoveDiagonally(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot)))
+                {
+                    it->setColumn(targetColumn);
+                    it->setRow(targetRow);
+                    break;
+                }
+            }
+            break;
+        case King:
+            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+            {
+                if(type == it->getType()
+                   && ((startColumn == 0 && startRow == 0)
+                       || (startColumn == it->getColumn() && startRow == 0)
+                       || (startColumn == 0 && startRow == it->getRow())
+                       || (startColumn == it->getColumn() && startRow == it->getRow()))
+                   && CanKingMove(it->getColumn(), it->getRow(), targetColumn, targetRow))
                 {
                     it->setColumn(targetColumn);
                     it->setRow(targetRow);
@@ -89,6 +141,28 @@ void Player::FindPieceToTake(int targetColumn, int targetRow)
             myPieces.erase(it);
             break;
         }
+    }
+}
+
+void Player::KingsideCastling()
+{
+    for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+    {
+        if(it->getType() == King)
+            it->setColumn(7);
+        if(it->getType() == Rook && it->getColumn() == 8)
+            it->setColumn(6);
+    }
+}
+
+void Player::QueensideCastling()
+{
+    for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+    {
+        if(it->getType() == King)
+            it->setColumn(3);
+        if(it->getType() == Rook && it->getColumn() == 1)
+            it->setColumn(4);
     }
 }
 
@@ -116,6 +190,56 @@ bool Player::CanMoveDiagonally(int startColumn, int startRow, int targetColumn, 
     }
 
     return true;
+}
+
+bool Player::CanMoveHorizontally(int startColumn, int startRow, int targetColumn, int targetRow, Tile **boardSnapshot)
+{
+    if(startRow != targetRow)
+        return false;
+
+    int Difference = AbsoluteInt(targetColumn - startColumn);
+    int currentColumn = startColumn + (targetColumn - startColumn) / Difference;
+    Difference--;
+
+    while(currentColumn != targetColumn)
+    {
+        if(boardSnapshot[startRow - 1][currentColumn - 1].type != None)
+            return false;
+        currentColumn += (targetColumn - currentColumn) / Difference;
+        Difference--;
+    }
+
+    return true;
+}
+
+bool Player::CanMoveVertically(int startColumn, int startRow, int targetColumn, int targetRow, Tile **boardSnapshot)
+{
+    if(startColumn != targetColumn)
+        return false;
+
+    int Difference = AbsoluteInt(targetRow - startRow);
+    int currentRow = startRow + (targetRow - startRow) / Difference;
+    Difference--;
+
+    while(currentRow != targetRow)
+    {
+        if(boardSnapshot[currentRow - 1][startColumn - 1].type != None)
+            return false;
+        currentRow += (targetRow - currentRow) / Difference;
+        Difference--;
+    }
+
+    return true;
+}
+
+bool Player::CanKingMove(int startColumn, int startRow, int targetColumn, int targetRow)
+{
+    int horizontalDifference = AbsoluteInt(targetColumn - startColumn);
+    int verticalDifference = AbsoluteInt(targetRow - startRow);
+
+    if(horizontalDifference <= 1 && verticalDifference <= 1)
+        return true;
+    else return  false;
 }
 
 Player::Player(Colour colour)

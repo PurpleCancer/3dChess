@@ -70,9 +70,41 @@ void Board::Print()
 void Board::Move(const string s)
 {
     if(s == "O-O")
+    {
         cout<<"Kingside castling"<<endl;
+        switch (turn)
+        {
+            case White:
+                whitePlayer->KingsideCastling();
+                turn = Black;
+                break;
+            case Black:
+                blackPlayer->KingsideCastling();
+                turn = White;
+                break;
+            default:
+                cout<<"Kolejka nieznanego gracza"<<endl;
+                break;
+        }
+    }
     else if(s == "O-O-O")
+    {
         cout<<"Queenside castling"<<endl;
+        switch (turn)
+        {
+            case White:
+                whitePlayer->QueensideCastling();
+                turn = Black;
+                break;
+            case Black:
+                blackPlayer->QueensideCastling();
+                turn = White;
+                break;
+            default:
+                cout<<"Kolejka nieznanego gracza"<<endl;
+                break;
+        }
+    }
     else
     {
         match_results<string::const_iterator> result;
