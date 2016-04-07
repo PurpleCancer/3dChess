@@ -212,7 +212,7 @@ Board::Board()
         boardSnapshot[i] = new Tile[BOARD_WIDTH];
     }
 
-    pattern = new regex("([KQRNB])?([a-h])?([1-8])?(x)?([a-h])([1-8])(=[KQRNB])?[+#]?");
+    pattern = new regex("([KQRNB])?([a-h])?([1-8])?(x)?([a-h])([1-8])(=[QRNB])?[+#]?");
 }
 
 Board::~Board()

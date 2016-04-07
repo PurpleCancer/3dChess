@@ -22,6 +22,7 @@ public:
     ~Player();
 private:
     Player();
+    int AbsoluteInt(int x);
     Colour colour;
     vector <Piece> myPieces;
 };

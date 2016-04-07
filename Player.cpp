@@ -39,6 +39,25 @@ void Player::FindPieceToMove(PieceType type, int startColumn, int startRow, int 
                 }
             }
             break;
+        case Knight:
+            for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+            {
+                if(type == it->getType() && ((startColumn == 0 && startRow == 0) ||
+                            (startColumn == it->getColumn() && startRow == 0) ||
+                            (startColumn == 0 && startRow == it->getRow()) ||
+                            (startColumn == it->getColumn() && startRow == it->getRow())
+                        ))
+                {
+                    int horizontalDifference = AbsoluteInt(it->getColumn() - targetColumn);
+                    int verticalDifference = AbsoluteInt(it->getRow() - targetRow);
+                    if((horizontalDifference == 1 && verticalDifference == 2) || (horizontalDifference == 2 && verticalDifference == 1))
+                    {
+                        it->setColumn(targetColumn);
+                        it->setRow(targetRow);
+                    }
+                }
+            }
+            break;
         default:
             break;
     }
@@ -46,7 +65,7 @@ void Player::FindPieceToMove(PieceType type, int startColumn, int startRow, int 
 
 void Player::FindPieceToTake(int targetColumn, int targetRow)
 {
-    //add en passant
+    //add en passant!
     for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
     {
         if(it->getColumn() == targetColumn && it->getRow() == targetRow)
@@ -117,6 +136,11 @@ Player::Player(Colour colour)
     //king
     Piece k(King, 5, firstRow);
     myPieces.push_back(k);
+}
+
+int Player::AbsoluteInt(int x)
+{
+    return x >= 0 ? x : -x;
 }
 
 Player::Player()

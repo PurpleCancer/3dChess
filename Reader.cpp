@@ -63,7 +63,7 @@ Reader::Reader(string name)
     }
 
     tags_pattern = new regex("\\[(\\w+) \"([\\s\\S]*)\"\\]");
-    moves_pattern = new regex("((?:[KQRNB]?[a-h]?[1-8]?x?[a-h][1-8](?:=[KQRNB])?[+#]?)|(?:O-O)|(?:O-O-O))(?![^{]*})");
+    moves_pattern = new regex("((?:[KQRNB]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRNB])?[+#]?)|(?:O-O)|(?:O-O-O))(?![^{]*})");
 
     while(!file.eof())
     {

@@ -7,7 +7,7 @@ Game* game;
 
 int main()
 {
-    game = new Game("C:\\Users\\Jan\\Desktop\\semestr4\\grafika\\cochrane_mohishunder_1850.pgn");
+    game = new Game("C:\\Users\\Jan\\Desktop\\semestr4\\grafika\\anderssen_dufresne_1852.pgn");
     game->Print();
     //game->printGameInfo();
     cout<<endl;
