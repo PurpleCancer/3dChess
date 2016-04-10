@@ -7,16 +7,20 @@ Game* game;
 
 int main()
 {
-    game = new Game("C:\\Users\\Jan\\Desktop\\semestr4\\grafika\\capablanca_p_northrop_1909.pgn");
+    game = new Game("C:\\Users\\Jan\\Desktop\\semestr4\\grafika\\fischer_petrosian_1959.pgn");
     game->Print();
     //game->printGameInfo();
     cout<<endl;
 
     while(game->Move());
 
-    /*for(int i = 0; i < 14; ++i)
+    /*int i = 1;
+    while(true)
     {
-        game->Move();
+        cout<<i++<<". ";
+        if(!game->Move())break;
+        game->Print();
+        if(!game->Move())break;
         game->Print();
     }*/
 

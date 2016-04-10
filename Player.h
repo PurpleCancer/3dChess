@@ -19,6 +19,7 @@ public:
     void FindPieceToTake(int targetColumn, int targetRow);
     void KingsideCastling();
     void QueensideCastling();
+    void MovePawnAndPromote(PieceType type, int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot, PieceType promotion);
 
     Player(Colour colour);
     ~Player();
@@ -30,7 +31,7 @@ private:
     bool CanMoveVertically(int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
     bool CanKnightMove(int startColumn, int startRow, int targetColumn, int targetRow);
     bool CanPawnMove(int startColumn, int startRow, int targetColumn, int targetRow, Tile** boardSnapshot);
-    bool CanPawnTake(int startColumn, int startRow, int targetColumn, int targetRow);
+    bool CanPawnTake(int startRow, int targetRow);
     Colour colour;
     vector <Piece> myPieces;
 };

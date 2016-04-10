@@ -30,7 +30,7 @@ void Player::FindPieceToMove(PieceType type, int startColumn, int startRow, int 
             {
                 case Pawn:
                     CorrectPiece = (startColumn == 0 && CanPawnMove(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot))
-                       || (startColumn == it->getColumn() && CanPawnTake(it->getColumn(), it->getRow(), targetColumn, targetRow));
+                       || (startColumn == it->getColumn() && CanPawnTake(it->getRow(), targetRow));
                     break;
                 case Knight:
                     CorrectPiece = CanKnightMove(it->getColumn(), it->getRow(), targetColumn, targetRow);
@@ -81,7 +81,7 @@ void Player::KingsideCastling()
     {
         if(it->getType() == King)
             it->setColumn(7);
-        if(it->getType() == Rook && it->getColumn() == 8)
+        if(it->getType() == Rook && it->getColumn() == 8 && ((colour == White && it->getRow() == 1) || (colour == Black && it->getRow() == 8)))
             it->setColumn(6);
     }
 }
@@ -92,8 +92,33 @@ void Player::QueensideCastling()
     {
         if(it->getType() == King)
             it->setColumn(3);
-        if(it->getType() == Rook && it->getColumn() == 1)
+        if(it->getType() == Rook && it->getColumn() == 1 && ((colour == White && it->getRow() == 1) || (colour == Black && it->getRow() == 8)))
             it->setColumn(4);
+    }
+}
+
+void Player::MovePawnAndPromote(PieceType type, int startColumn, int startRow, int targetColumn, int targetRow,
+                                Tile** boardSnapshot, PieceType promotion)
+{
+    bool CorrectPiece = false;
+    for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+    {
+        if(type == it->getType()
+           && ((startColumn == 0 && startRow == 0)
+               || (startColumn == it->getColumn() && startRow == 0)
+               || (startColumn == 0 && startRow == it->getRow())
+               || (startColumn == it->getColumn() && startRow == it->getRow())))
+            {
+                CorrectPiece = (startColumn == 0 && CanPawnMove(it->getColumn(), it->getRow(), targetColumn, targetRow, boardSnapshot))
+                               || (startColumn == it->getColumn() && CanPawnTake(it->getRow(), targetRow));
+            }
+        if(CorrectPiece)
+        {
+            it->setColumn(targetColumn);
+            it->setRow(targetRow);
+            it->setType(promotion);
+            break;
+        }
     }
 }
 
@@ -178,7 +203,7 @@ bool Player::CanPawnMove(int startColumn, int startRow, int targetColumn, int ta
        || (targetColumn == startColumn && targetRow == startRow + 2*forward && boardSnapshot[startRow + forward - 1][startColumn - 1].type == None);
 }
 
-bool Player::CanPawnTake(int startColumn, int startRow, int targetColumn, int targetRow)
+bool Player::CanPawnTake(int startRow, int targetRow)
 {
     int forward = (colour == White) ? 1 : -1;     //'forward' for a player
     return targetRow == startRow + forward;

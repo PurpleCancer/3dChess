@@ -209,12 +209,14 @@ void Board::Move(const string s)
         switch (turn)
         {
             case White:
-                whitePlayer->FindPieceToMove(type, startColumn, startRow, targetColumn, targetRow, boardSnapshot);
+                if(promotion == None)whitePlayer->FindPieceToMove(type, startColumn, startRow, targetColumn, targetRow, boardSnapshot);
+                else whitePlayer->MovePawnAndPromote(type, startColumn, startRow, targetColumn, targetRow, boardSnapshot, promotion);
                 if(take)blackPlayer->FindPieceToTake(targetColumn, targetRow);
                 turn = Black;
                 break;
             case Black:
-                blackPlayer->FindPieceToMove(type, startColumn, startRow, targetColumn, targetRow, boardSnapshot);
+                if(promotion == None)blackPlayer->FindPieceToMove(type, startColumn, startRow, targetColumn, targetRow, boardSnapshot);
+                else blackPlayer->MovePawnAndPromote(type, startColumn, startRow, targetColumn, targetRow, boardSnapshot, promotion);
                 if(take)whitePlayer->FindPieceToTake(targetColumn, targetRow);
                 turn = White;
                 break;
