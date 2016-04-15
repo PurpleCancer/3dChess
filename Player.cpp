@@ -64,13 +64,27 @@ void Player::FindPieceToMove(PieceType type, int startColumn, int startRow, int 
 
 void Player::FindPieceToTake(int targetColumn, int targetRow)
 {
-    //add en passant!
+    bool enPassant = true;
+
     for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
     {
         if(it->getColumn() == targetColumn && it->getRow() == targetRow)
         {
+            enPassant = false;
             myPieces.erase(it);
             break;
+        }
+    }
+
+    if(enPassant)
+    {
+        for(vector<Piece>::iterator it = myPieces.begin(); it != myPieces.end(); ++it)
+        {
+            if(it->getColumn() == targetColumn && (it->getRow() == targetRow + 1 || it->getRow() == targetRow - 1))
+            {
+                myPieces.erase(it);
+                break;
+            }
         }
     }
 }
