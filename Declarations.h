@@ -19,4 +19,13 @@ struct Tile
     PieceType type;
 };
 
+
+struct Model3D{
+    float vertices[];
+    float normals[];
+    float vertexNormals[];
+    float texCoords[];
+    float colors[];
+};
+
 #endif //INC_3DCHESS_DELARATIONS_H

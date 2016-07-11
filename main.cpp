@@ -15,6 +15,7 @@
 #include "Declarations.h"
 #include "Game.h"
 
+
 using namespace glm;
 
 Game* game;
@@ -22,8 +23,6 @@ Game* game;
 //Uchwyty na shadery
 ShaderProgram *shaderProgramWithTexture;
 ShaderProgram *shaderProgramWithoutTexture;
-
-
 
 //Wskaźnik na obiekt reprezentujący program cieniujący.
 
@@ -82,6 +81,18 @@ const int shininess=50;
 
 GLuint boardTexture;
 
+Model3D PiecesVBO[PIECESAMOUNT];
+GLuint textures[TEXTURESAMOUNT];
+
+
+enum textureEnum {
+    white=0,
+    black=1,
+    board=2,
+    boardSides=3,
+    boardBottom=4,
+
+};
 
 //Procedura obsługi błędów
 void error_callback(int error, const char* description) {
@@ -130,22 +141,19 @@ void assignVBOtoAttribute(ShaderProgram *shaderProgram,char* attributeName, GLui
     glVertexAttribPointer(location,vertexSize,GL_FLOAT, GL_FALSE, 0, NULL); //Dane do slotu location mają być brane z aktywnego VBO
 }
 
-void texturesInput(){
+void texturesInput(GLuint &textureHandler, string path){
 
     //Wczytanie do pamięci komputera
     std::vector<unsigned char> image;   //Alokuj wektor do wczytania obrazka
     unsigned width, height;   //Zmienne do których wczytamy wymiary obrazka
 //Wczytaj obrazek
-    unsigned error = lodepng::decode(image, width, height, "/home/piotrek/Dokumenty/3dChess/textures/marbleBoard.png");
-
+    unsigned error = lodepng::decode(image, width, height, path);
 //Import do pamięci karty graficznej
-    glGenTextures(1,&boardTexture); //Zainicjuj jeden uchwyt
-    glBindTexture(GL_TEXTURE_2D, boardTexture); //Uaktywnij uchwyt
+    glGenTextures(1,&textureHandler); //Zainicjuj jeden uchwyt
+    glBindTexture(GL_TEXTURE_2D, textureHandler); //Uaktywnij uchwyt
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 //Wczytaj obrazek do pamięci KG skojarzonej z uchwytem
-    glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*) image.data());
-
+    glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*) image.data());
 
 }
 
@@ -167,16 +175,16 @@ void initOpenGLProgram(GLFWwindow* window) {
 
 
     //WCZYTYWANIE TEKSTUR
-    texturesInput();
+    texturesInput(textures[board],"/home/piotrek/Dokumenty/3dChess/textures/marbleBoard.png");
+    texturesInput(textures[white],"/home/piotrek/Dokumenty/3dChess/textures/white.png");
+    texturesInput(textures[black],"/home/piotrek/Dokumenty/3dChess/textures/black.png");
 
 
     glfwSetKeyCallback(window, key_callback); //Zarejestruj procedurę obsługi klawiatury
     glfwSetScrollCallback(window, scroll_callback); //Zarejestruj procedure obslugi scrolla
 
-
     shaderProgramWithTexture =new ShaderProgram("/home/piotrek/Dokumenty/3dChess/shaders/vshaderWithTexture.txt", NULL, "/home/piotrek/Dokumenty/3dChess/shaders/fshaderWithTexture.txt"); //Wczytaj program cieniujący
     shaderProgramWithoutTexture=new ShaderProgram("/home/piotrek/Dokumenty/3dChess/shaders/vshaderWithoutTexture.txt",NULL,"/home/piotrek/Dokumenty/3dChess/shaders/fshaderWithoutTexture.txt"); //Wczytaj program cieniujący
-
 
     //*****Przygotowanie do rysowania pojedynczego obiektu*******
     //Zbuduj VBO z danymi obiektu do narysowania
@@ -221,15 +229,16 @@ void freeOpenGLProgram() {
     glDeleteBuffers(1,&boardColorsBuffer); //Usunięcie VBO z kolorami
     glDeleteBuffers(1,&boardNormalsBuffer); //Usunięcie VBO z wektorami normalnymi
 
-    glDeleteTextures(1,&boardTexture);
 
+    for(int i=0;i<TEXTURESAMOUNT;i++){
+        glDeleteTextures(1,&textures[i]);
+    }
 
 }
 
 
 
-
-void drawObjectWithTexture(GLuint vao, ShaderProgram *shaderProgram, mat4 mP, mat4 mV, mat4 mM){
+void drawObjectWithTexture(GLuint vao, ShaderProgram *shaderProgram,GLuint texture,mat4 mP, mat4 mV, mat4 mM){
 
     //Włączenie programu cieniującego, który ma zostać użyty do rysowania
     //W tym programie wystarczyłoby wywołać to raz, w setupShaders, ale chodzi o pokazanie,
@@ -252,9 +261,7 @@ void drawObjectWithTexture(GLuint vao, ShaderProgram *shaderProgram, mat4 mP, ma
 
 
     //Uaktywnienie tekstury
-    glBindTexture(GL_TEXTURE_2D,boardTexture);
-
-
+    glBindTexture(GL_TEXTURE_2D,texture);
 
     //Uaktywnienie VAO i tym samym uaktywnienie predefiniowanych w tym VAO powiązań slotów atrybutów z tablicami z danymi
     glBindVertexArray(vao);
@@ -306,10 +313,8 @@ void drawBoard(GLuint boardvao, ShaderProgram *shaderProgram,glm::mat4 P,glm::ma
     M = glm::translate(M, glm::vec3(0.0f, -0.5f*BOARDSIDESIZE*BOARDHEIGHTRATIO, 0.0f));
     M = glm::scale(M, glm::vec3(0.5f*BOARDSIDESIZE, 0.5f*BOARDSIDESIZE*BOARDHEIGHTRATIO, 0.5f*BOARDSIDESIZE));
 
-
-
     //Narysuj plansze
-    drawObjectWithTexture(boardVao, shaderProgramWithTexture, P, V, M);
+    drawObjectWithTexture(boardVao, shaderProgramWithTexture,textures[board], P, V, M);
 }
 
 void drawPiece(Tile piece,int horizontalIndex,int verticalIndex, GLuint piecevao,ShaderProgram *shaderProgram,glm::mat4 P,glm::mat4 V){
@@ -318,12 +323,15 @@ void drawPiece(Tile piece,int horizontalIndex,int verticalIndex, GLuint piecevao
     glm::mat4 M = glm::mat4(1.0f);
     M = glm::translate(M, glm::vec3(float(horizontalIndex)-PIECEMOVINGCONSTANT, 0.5f*PIECESIZE, float(verticalIndex)-PIECEMOVINGCONSTANT));
 
-    if(piece.type!=None){
-        //Narysuj bierke
-        drawObject(piecevao, shaderProgram, P, V, M);
+    if(piece.type!=None) {
+        if (piece.colour == White){
+            //Narysuj bierke
+            drawObjectWithTexture(piecevao, shaderProgramWithTexture, textures[white], P, V, M);
     }
-
-
+        else {
+        drawObjectWithTexture(piecevao, shaderProgramWithTexture, textures[black], P, V, M);
+    }
+    }
 
 }
 
@@ -375,9 +383,6 @@ int main(void)
 {
 
     game = new Game("/home/piotrek/Dokumenty/3dChess/games/1");
-
-    //game->Move();
-
 
     GLFWwindow* window; //Wskaźnik na obiekt reprezentujący okno
 

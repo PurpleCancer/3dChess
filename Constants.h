@@ -45,5 +45,8 @@ const float PIECEMOVINGCONSTANT=0.5f*BOARDSIDESIZE-0.5f*TILESIZE;
 
 const float BREAKBETWEENMOVES = 0.25f;
 
+const int PIECESAMOUNT=6;
+const int TEXTURESAMOUNT=3;
+
 
 #endif
