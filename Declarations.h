@@ -9,9 +9,20 @@
 #define BOARD_WIDTH 8
 
 
-enum Colour { White, Black };
+enum Colour {
+    White=0,
+    Black=1,
+};
 
-enum PieceType { None, Pawn, Rook, Knight, Bishop, Queen, King };
+enum PieceType {
+    Pawn=0,
+    Rook=1,
+    Knight=2,
+    Bishop=3,
+    Queen=4,
+    King=5,
+    None,
+};
 
 struct Tile
 {
@@ -20,12 +31,6 @@ struct Tile
 };
 
 
-struct Model3D{
-    float vertices[];
-    float normals[];
-    float vertexNormals[];
-    float texCoords[];
-    float colors[];
-};
+
 
 #endif //INC_3DCHESS_DELARATIONS_H
