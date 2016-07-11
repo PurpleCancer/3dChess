@@ -9,7 +9,7 @@
 #include <iostream>
 #include <regex>
 #include "Player.h"
-#include "Delarations.h"
+#include "Declarations.h"
 
 using namespace std;
 
@@ -18,6 +18,7 @@ public:
     void UpdateSnapshot();
     void Print();
     void Move(const string s);
+    Tile** getBoardSnapshot();
 
     Board();
     ~Board();

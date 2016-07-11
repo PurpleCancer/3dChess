@@ -5,7 +5,7 @@
 #ifndef INC_3DCHESS_PIECE_H
 #define INC_3DCHESS_PIECE_H
 
-#include "Delarations.h"
+#include "Declarations.h"
 
 class Piece {
 public:

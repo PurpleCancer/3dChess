@@ -50,24 +50,35 @@ string Reader::getNextMove()
 
 Reader::Reader(string name)
 {
+
     string s;
     string allmoves = "";
     match_results<string::const_iterator> tags;
 
+    tags_pattern = new regex("\\[(\\w+) \"([\\s\\S]*)\"\\]");
+    moves_pattern = new regex("((?:[KQRNB]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRNB])?[+#]?)|(?:O-O)|(?:O-O-O))(?![^{]*})");
+
+    ifstream file;
+
     try
     {
-        file.open(name);
+        file.open(name,ios::in);
     }
     catch (ifstream::failure e) {
         cerr << "Exception opening/reading/closing file\n";
     }
 
-    tags_pattern = new regex("\\[(\\w+) \"([\\s\\S]*)\"\\]");
-    moves_pattern = new regex("((?:[KQRNB]?[a-h]?[1-8]?x?[a-h][1-8](?:=[QRNB])?[+#]?)|(?:O-O)|(?:O-O-O))(?![^{]*})");
 
-    while(!file.eof())
+    if(!file){
+        cout<<"NIE"<<endl;
+    }
+
+
+
+
+    while(getline(file, s))
     {
-        getline(file, s);
+
         if(regex_match(s, tags, *tags_pattern))
         {
             if(tags[1].str() == "Event")
@@ -89,6 +100,8 @@ Reader::Reader(string name)
             allmoves += " ";
         }
     }
+
+
 
     sregex_iterator next(allmoves.begin(), allmoves.end(), *moves_pattern);
     sregex_iterator end;

@@ -8,7 +8,7 @@
 #include <vector>
 #include <iostream>
 #include "Piece.h"
-#include "Delarations.h"
+#include "Declarations.h"
 
 using namespace std;
 

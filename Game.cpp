@@ -41,6 +41,10 @@ void Game::printGameInfo()
 
 }
 
+Tile** Game::getBoardSnapshot() {
+    return this->board->getBoardSnapshot();
+}
+
 Game::Game(string name)
 {
     board = new Board();

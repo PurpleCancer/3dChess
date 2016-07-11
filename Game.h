@@ -9,7 +9,7 @@
 #include <string>
 #include "Board.h"
 #include "Reader.h"
-#include "Delarations.h"
+#include "Declarations.h"
 
 using namespace std;
 
@@ -18,6 +18,7 @@ public:
     void Print();
     bool Move();
     void printGameInfo();
+    Tile** getBoardSnapshot();
 
     Game(string name);
     ~Game();

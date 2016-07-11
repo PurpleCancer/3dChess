@@ -7,6 +7,10 @@
 
 using namespace std;
 
+Tile** Board::getBoardSnapshot(){
+    return this->boardSnapshot;
+}
+
 void Board::UpdateSnapshot()
 {
     for(int i = 0; i < BOARD_HEIGHT; ++i)

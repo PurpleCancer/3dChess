@@ -10,7 +10,7 @@
 #include <iostream>
 #include <fstream>
 #include <regex>
-#include "Delarations.h"
+#include "Declarations.h"
 
 using namespace std;
 

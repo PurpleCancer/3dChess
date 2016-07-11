@@ -1,0 +1,39 @@
+#version 130
+
+out vec4 pixelColor; //Zmienna wyjsciowa fragment shadera. Zapisuje sie do niej ostateczny (prawie) kolor piksela
+
+in vec4 iColor;
+
+in vec4 vL;
+in vec4 vN;
+in vec4 vV;
+
+in vec2 texCoord;
+
+
+uniform sampler2D ourTexture;
+
+
+float t(float a,float s){
+return round(s*a)/s;
+}
+
+void main(void) {
+
+vec4 mL=normalize(vL);
+vec4 mN=normalize(vN);
+vec4 mV=normalize(vV);
+vec4 mR=reflect(-mL,mN);
+
+
+float x=max(dot(mL,mN),0);
+float y=pow(max(dot(mV,mR),0),50);
+
+x=t(x,2);
+y=t(y,2);
+
+
+    pixelColor = texture(ourTexture, texCoord);
+	//pixelColor=iColor*vec4(x,x,x,1) + vec4(y,y,y,0);
+	//pixelColor=vec4(0.5,0.5,1,1); //Zapisz jako kolor piksela, kolor bialy
+}
