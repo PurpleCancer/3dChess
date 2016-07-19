@@ -10,12 +10,16 @@
       <sourceFolder url="file://$MODULE_DIR$/Declarations.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Game.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Game.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Model.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Model.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Piece.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Piece.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Player.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Player.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Reader.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Reader.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Shaderprogram.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Shaderprogram.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/glfw-3.2/CMake/modules/FindVulkan.cmake" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/glfw-3.2/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/glfw-3.2/cmake_uninstall.cmake.in" isTestSource="false" />
@@ -51,10 +55,12 @@
       <sourceFolder url="file://$MODULE_DIR$/lodepng.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lodepng.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Model.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Model.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Shaderprogram.cpp" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Shaderprogram.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/models/bishop.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/models/king.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/models/knight.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/models/pawn.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/models/queen.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/models/rook.h" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">

@@ -14,6 +14,7 @@
 #include "Piece.h"
 #include "Declarations.h"
 #include "Game.h"
+#include "models.h"
 
 
 using namespace glm;
@@ -90,6 +91,11 @@ struct VBOstruct{
     GLuint colorsBuffer;
     int vertexCount;
 };
+
+
+
+
+OBJModel OBJModels[PIECESAMOUNT];
 
 GLuint  PiecesVAO[PIECESAMOUNT];
 VBOstruct PiecesVBO[PIECESAMOUNT];
@@ -168,6 +174,43 @@ void texturesInput(GLuint &textureHandler, string path){
 
 }
 
+void modelsinit(){
+
+
+    OBJModels[Pawn].vertices=pawnVertices;
+    OBJModels[Pawn].normals=pawnNormals;
+    OBJModels[Pawn].texcoords=pawnTexCoords;
+    OBJModels[Pawn].vertexCount=pawnVertexCount;
+
+    OBJModels[Rook].vertices=rookVertices;
+    OBJModels[Rook].normals=rookNormals;
+    OBJModels[Rook].texcoords=rookTexCoords;
+    OBJModels[Rook].vertexCount=rookVertexCount;
+
+    OBJModels[Knight].vertices=knightVertices;
+    OBJModels[Knight].normals=knightNormals;
+    OBJModels[Knight].texcoords=knightTexCoords;
+    OBJModels[Knight].vertexCount=knightVertexCount;
+
+
+    OBJModels[Bishop].vertices=bishopVertices;
+    OBJModels[Bishop].normals=bishopNormals;
+    OBJModels[Bishop].texcoords=bishopTexCoords;
+    OBJModels[Bishop].vertexCount=bishopVertexCount;
+
+    OBJModels[Queen].vertices=queenVertices;
+    OBJModels[Queen].normals=queenNormals;
+    OBJModels[Queen].texcoords=queenTexCoords;
+    OBJModels[Queen].vertexCount=queenVertexCount;
+
+
+    OBJModels[King].vertices=kingVertices;
+    OBJModels[King].normals=kingNormals;
+    OBJModels[King].texcoords=kingTexCoords;
+    OBJModels[King].vertexCount=kingVertexCount;
+
+
+}
 
 //Procedura inicjująca
 void initOpenGLProgram(GLFWwindow* window) {
@@ -189,6 +232,8 @@ void initOpenGLProgram(GLFWwindow* window) {
     texturesInput(textures[board],"/home/piotrek/Dokumenty/3dChess/textures/marbleBoard.png");
     texturesInput(textures[white],"/home/piotrek/Dokumenty/3dChess/textures/white.png");
     texturesInput(textures[black],"/home/piotrek/Dokumenty/3dChess/textures/black.png");
+
+    modelsinit();
 
 
     glfwSetKeyCallback(window, key_callback); //Zarejestruj procedurę obsługi klawiatury
@@ -223,25 +268,147 @@ void initOpenGLProgram(GLFWwindow* window) {
 
     for(int pieceIndex=0;pieceIndex<PIECESAMOUNT;pieceIndex++){
 
-        PiecesVBO[pieceIndex].verticesBuffer =makeBuffer(vertices, vertexCount, sizeof(float) * 4); //VBO ze współrzędnymi wierzchołków
-        PiecesVBO[pieceIndex].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
-        PiecesVBO[pieceIndex].normalsBuffer =makeBuffer(normals, vertexCount, sizeof(float) * 4);//VBO z wektorami normalnymi wierzchołków
-        PiecesVBO[pieceIndex].texCoordsBuffer =makeBuffer(texCoords, vertexCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
-        PiecesVBO[pieceIndex].vertexCount= vertexCount;
+        PiecesVBO[pieceIndex].verticesBuffer =makeBuffer(OBJModels[pieceIndex].vertices, OBJModels[pieceIndex].vertexCount, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
+        //PiecesVBO[pieceIndex].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
+        PiecesVBO[pieceIndex].normalsBuffer =makeBuffer(OBJModels[pieceIndex].normals, OBJModels[pieceIndex].vertexCount, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
+        PiecesVBO[pieceIndex].texCoordsBuffer =makeBuffer(OBJModels[pieceIndex].texcoords, OBJModels[pieceIndex].vertexCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
+        PiecesVBO[pieceIndex].vertexCount= OBJModels[pieceIndex].vertexCount;
         // WAZNE!!!! TRZEBA ZMIENIC vertexCount NA PRAWDZIWA WARTOSC WYNIKAJACA Z OBIEKTU!
-
 
         //Zbuduj VAO wiążący atrybuty z konkretnymi VBO
         glGenVertexArrays(1,&PiecesVAO[pieceIndex]); //Wygeneruj uchwyt na VAO i zapisz go do zmiennej globalnej
 
         glBindVertexArray(PiecesVAO[pieceIndex]); //Uaktywnij nowo utworzony VAO
 
-        assignVBOtoAttribute(shaderProgramWithTexture, "vertex", PiecesVBO[pieceIndex].verticesBuffer, 4); //"vertex" odnosi się do deklaracji "in vec4 vertex;" w vertex shaderze
-        assignVBOtoAttribute(shaderProgramWithTexture, "color", PiecesVBO[pieceIndex].colorsBuffer, 4); //"color" odnosi się do deklaracji "in vec4 color;" w vertex shaderze
-        assignVBOtoAttribute(shaderProgramWithTexture, "normal", PiecesVBO[pieceIndex].normalsBuffer, 4); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
+        assignVBOtoAttribute(shaderProgramWithTexture, "vertex", PiecesVBO[pieceIndex].verticesBuffer, 3); //"vertex" odnosi się do deklaracji "in vec4 vertex;" w vertex shaderze
+        //assignVBOtoAttribute(shaderProgramWithTexture, "color", PiecesVBO[pieceIndex].colorsBuffer, 4); //"color" odnosi się do deklaracji "in vec4 color;" w vertex shaderze
+        assignVBOtoAttribute(shaderProgramWithTexture, "normal", PiecesVBO[pieceIndex].normalsBuffer, 3); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
         assignVBOtoAttribute(shaderProgramWithTexture, "texcoord", PiecesVBO[pieceIndex].texCoordsBuffer, 2); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
 
     }
+
+    /*
+
+    float *newpos=cubePositions;
+    float *newnorm=cubeNormals;
+    float *newtexels=cubeTexels;
+
+    PiecesVBO[0].verticesBuffer =makeBuffer(newpos, cubeVertices, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
+    //PiecesVBO[0].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
+    PiecesVBO[0].normalsBuffer =makeBuffer(newnorm, cubeVertices, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
+    PiecesVBO[0].texCoordsBuffer =makeBuffer(newtexels, cubeVertices, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
+    PiecesVBO[0].vertexCount= cubeVertices;
+    // WAZNE!!!! TRZEBA ZMIENIC vertexCount NA PRAWDZIWA WARTOSC WYNIKAJACA Z OBIEKTU!
+
+     */
+
+
+/*
+    float *newpos=bishopVertices;
+    float *newnorm=bishopNormals;
+    float *newtexels=bishopTexCoords;
+    int vCount=bishopVertexCount;
+
+    PiecesVBO[0].verticesBuffer =makeBuffer(newpos, vCount, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
+    //PiecesVBO[0].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
+    PiecesVBO[0].normalsBuffer =makeBuffer(newnorm, vCount, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
+    PiecesVBO[0].texCoordsBuffer =makeBuffer(newtexels, vCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
+    PiecesVBO[0].vertexCount= vCount;
+    // WAZNE!!!! TRZEBA ZMIENIC vertexCount NA PRAWDZIWA WARTOSC WYNIKAJACA Z OBIEKTU!
+
+*/
+/*
+
+
+    PiecesVBO[0].verticesBuffer =makeBuffer(&shapes[0].mesh.positions, shapes[0].mesh.positions.size()/3, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
+    //PiecesVBO[0].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
+    PiecesVBO[0].normalsBuffer =makeBuffer(&shapes[0].mesh.normals, shapes[0].mesh.positions.size()/3, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
+    PiecesVBO[0].texCoordsBuffer =makeBuffer(&shapes[0].mesh.texcoords, shapes[0].mesh.positions.size()/2, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
+    PiecesVBO[0].vertexCount= shapes[0].mesh.positions.size()/2;
+
+
+    for (size_t v = 0; v < shapes[0].mesh.normals.size() / 3; v++) {
+        printf("  v[%ld] = %f, %f, %f,\n", v,
+               shapes[0].mesh.normals[3*v+0],
+               shapes[0].mesh.normals[3*v+1],
+               shapes[0].mesh.normals[3*v+2]);
+    }
+
+*/
+
+/*
+
+    std::vector< float > vertices;
+    std::vector< float > texcoords;
+    std::vector< float > normals;
+
+
+    std::vector< glm::vec3 > verticesglm;
+    std::vector< glm::vec2 > texcoordsglm;
+    std::vector< glm::vec3 > normalsglm; // Won't be used at the moment.
+    bool res = loadOBJ("/home/piotrek/Dokumenty/3dChess/models/pawn.obj", verticesglm, texcoordsglm, normalsglm);
+
+    for(int i=0;i<verticesglm.size();i++){
+        vertices.push_back(verticesglm[i].x);
+        vertices.push_back(verticesglm[i].y);
+        vertices.push_back(verticesglm[i].z);
+    }
+
+    for(int i=0;i<normalsglm.size();i++){
+        normals.push_back(normalsglm[i].x);
+        normals.push_back(normalsglm[i].y);
+        normals.push_back(normalsglm[i].z);
+    }
+
+    for(int i=0;i<texcoordsglm.size();i++){
+        texcoords.push_back(texcoordsglm[i].x);
+        texcoords.push_back(texcoordsglm[i].y);
+    }
+
+    for(int i=0;i<texcoords.size();i++) {
+        cout << texcoords[i] << endl;
+    }
+    */
+/*
+    PiecesVBO[0].verticesBuffer =makeBuffer(&vertices[0], vertexCount, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
+    //PiecesVBO[pieceIndex].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
+    PiecesVBO[0].normalsBuffer =makeBuffer(&normals[0], vertexCount, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
+    PiecesVBO[0].texCoordsBuffer =makeBuffer(&texCoords[0], vertexCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
+    PiecesVBO[0].vertexCount= texcoords.size()/2;
+
+*/
+
+
+
+
+
+    /*
+    float *newpos=bishopVertices;
+    float *newnorm=bishopNormals;
+    float *newtexels=bishopTexCoords;
+    int vCount=bishopVertexCount;
+
+    PiecesVBO[0].verticesBuffer =makeBuffer(bishopVertices, vCount, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
+    //PiecesVBO[0].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
+    PiecesVBO[0].normalsBuffer =makeBuffer(bishopNormals, vCount, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
+    PiecesVBO[0].texCoordsBuffer =makeBuffer(bishopTexCoords, vCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
+    PiecesVBO[0].vertexCount= vCount;
+
+    //Zbuduj VAO wiążący atrybuty z konkretnymi VBO
+    glGenVertexArrays(1,&PiecesVAO[0]); //Wygeneruj uchwyt na VAO i zapisz go do zmiennej globalnej
+
+    glBindVertexArray(PiecesVAO[0]); //Uaktywnij nowo utworzony VAO
+
+    assignVBOtoAttribute(shaderProgramWithTexture, "vertex", PiecesVBO[0].verticesBuffer, 3); //"vertex" odnosi się do deklaracji "in vec4 vertex;" w vertex shaderze
+    //assignVBOtoAttribute(shaderProgramWithTexture, "color", PiecesVBO[0].colorsBuffer, 4); //"color" odnosi się do deklaracji "in vec4 color;" w vertex shaderze
+    assignVBOtoAttribute(shaderProgramWithTexture, "normal", PiecesVBO[0].normalsBuffer, 3); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
+    assignVBOtoAttribute(shaderProgramWithTexture, "texcoord", PiecesVBO[0].texCoordsBuffer, 2); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
+
+
+*/
+
+
+
 
 
     glBindVertexArray(0); //Dezaktywuj VAO
@@ -356,7 +523,7 @@ void drawPiece(Tile piece,int horizontalIndex,int verticalIndex,ShaderProgram *s
 
     //Wylicz macierz modelu rysowanego obiektu
     glm::mat4 M = glm::mat4(1.0f);
-    M = glm::translate(M, glm::vec3(float(horizontalIndex)-PIECEMOVINGCONSTANT, 0.5f*PIECESIZE, float(verticalIndex)-PIECEMOVINGCONSTANT));
+    M = glm::translate(M, glm::vec3(float(horizontalIndex)-PIECEMOVINGCONSTANT,0, float(verticalIndex)-PIECEMOVINGCONSTANT));
 
     if(piece.type!=None) {
         //Narysuj bierke
@@ -395,12 +562,26 @@ void drawScene(GLFWwindow* window) {
     //TRANSLATE BOARD
     Tile** boardsnapshot=game->getBoardSnapshot();
 
+
+
     for(int j=0;j<TILECOUNT;j++){
         for (int i=0;i<TILECOUNT;i++){
             drawPiece(boardsnapshot[j][i],2*i,2*j,shaderProgramWithTexture,P,V);
         }
     }
 
+
+
+
+
+
+/*
+    glm::mat4 M = glm::mat4(1.0f);
+    //M = glm::scale(M, glm::vec3(0.1, 0.1, 0.1));
+    drawObject(PiecesVAO[0], PiecesVBO[0].vertexCount,shaderProgramWithoutTexture, P, V, M);
+
+
+ */
     //Przerzuć tylny bufor na przedni
     glfwSwapBuffers(window);
 

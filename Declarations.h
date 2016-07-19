@@ -8,6 +8,8 @@
 #define BOARD_HEIGHT 8
 #define BOARD_WIDTH 8
 
+#include "Constants.h"
+
 
 enum Colour {
     White=0,
@@ -29,6 +31,14 @@ struct Tile
     Colour colour;
     PieceType type;
 };
+
+struct OBJModel{
+    float *vertices;
+    float *normals;
+    float *texcoords;
+    int vertexCount;
+};
+
 
 
 
