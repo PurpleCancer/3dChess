@@ -5,10 +5,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <stdlib.h>
 #include <stdio.h>
 #include "Constants.h"
-#include "Cube.h"
 #include "lodepng.h"
 #include "Shaderprogram.h"
 #include "Piece.h"
@@ -19,27 +17,33 @@
 
 using namespace glm;
 
-Game* game;
+
+
+
+
+//Struct nie mogacy byc w Declarations.h
+
+struct VBOstruct{
+    GLuint verticesBuffer;
+    GLuint normalsBuffer;
+    GLuint texCoordsBuffer;
+    int vertexCount;
+};
 
 //Uchwyty na shadery
-ShaderProgram *shaderProgramWithTexture;
-ShaderProgram *shaderProgramWithoutTexture;
 
 //Wskaźnik na obiekt reprezentujący program cieniujący.
+ShaderProgram *shaderProgram;
 
 //Uchwyty na VAO i bufory wierzchołków
 GLuint boardVao;
 GLuint boardVerticesBuffer; //Uchwyt na bufor VBO przechowujący tablicę współrzędnych wierzchołków
-GLuint boardColorsBuffer;  //Uchwyt na bufor VBO przechowujący tablicę kolorów
 GLuint boardNormalsBuffer; //Uchwyt na bufor VBO przechowujący tablickę wektorów normalnych
 GLuint boardCoordsBuffer;
 
-//Kostka
-float* vertices=Models::CubeInternal::vertices;
-float* colors=Models::CubeInternal::colors;
-float* normals=Models::CubeInternal::normals;
-float* texCoords=Models::CubeInternal::texCoords;
-int vertexCount=Models::CubeInternal::vertexCount;
+GLuint  PiecesVAO[PIECESAMOUNT];
+VBOstruct PiecesVBO[PIECESAMOUNT];
+
 
 //Zmienne i stale kamery
 GLfloat cameraHorizontalAngle=0.0f;
@@ -80,42 +84,17 @@ const int shininess=50;
 
 //ZMIENNE GLOBALNE
 
-GLuint boardTexture;
-
-
-struct VBOstruct{
-    GLuint verticesBuffer;
-    GLuint normalsBuffer;
-    GLuint vertexNormalsBuffer;
-    GLuint texCoordsBuffer;
-    GLuint colorsBuffer;
-    int vertexCount;
-};
-
-
-
-
+Game* game;
 OBJModel OBJModels[PIECESAMOUNT];
-
-GLuint  PiecesVAO[PIECESAMOUNT];
-VBOstruct PiecesVBO[PIECESAMOUNT];
 GLuint textures[TEXTURESAMOUNT];
 
 
-enum textureEnum {
-    white=0,
-    black=1,
-    board=2,
-    boardSides=3,
-    boardBottom=4,
 
-};
 
 //Procedura obsługi błędów
 void error_callback(int error, const char* description) {
     fputs(description, stderr);
 }
-
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
@@ -159,7 +138,6 @@ void assignVBOtoAttribute(ShaderProgram *shaderProgram,char* attributeName, GLui
 }
 
 void texturesInput(GLuint &textureHandler, string path){
-
     //Wczytanie do pamięci komputera
     std::vector<unsigned char> image;   //Alokuj wektor do wczytania obrazka
     unsigned width, height;   //Zmienne do których wczytamy wymiary obrazka
@@ -176,7 +154,6 @@ void texturesInput(GLuint &textureHandler, string path){
 
 void modelsinit(){
 
-
     OBJModels[Pawn].vertices=pawnVertices;
     OBJModels[Pawn].normals=pawnNormals;
     OBJModels[Pawn].texcoords=pawnTexCoords;
@@ -192,7 +169,6 @@ void modelsinit(){
     OBJModels[Knight].texcoords=knightTexCoords;
     OBJModels[Knight].vertexCount=knightVertexCount;
 
-
     OBJModels[Bishop].vertices=bishopVertices;
     OBJModels[Bishop].normals=bishopNormals;
     OBJModels[Bishop].texcoords=bishopTexCoords;
@@ -203,13 +179,10 @@ void modelsinit(){
     OBJModels[Queen].texcoords=queenTexCoords;
     OBJModels[Queen].vertexCount=queenVertexCount;
 
-
     OBJModels[King].vertices=kingVertices;
     OBJModels[King].normals=kingNormals;
     OBJModels[King].texcoords=kingTexCoords;
     OBJModels[King].vertexCount=kingVertexCount;
-
-
 }
 
 //Procedura inicjująca
@@ -235,181 +208,45 @@ void initOpenGLProgram(GLFWwindow* window) {
 
     modelsinit();
 
-
     glfwSetKeyCallback(window, key_callback); //Zarejestruj procedurę obsługi klawiatury
     glfwSetScrollCallback(window, scroll_callback); //Zarejestruj procedure obslugi scrolla
 
-    shaderProgramWithTexture =new ShaderProgram("/home/piotrek/Dokumenty/3dChess/shaders/vshaderWithTexture.txt", NULL, "/home/piotrek/Dokumenty/3dChess/shaders/fshaderWithTexture.txt"); //Wczytaj program cieniujący
-    shaderProgramWithoutTexture=new ShaderProgram("/home/piotrek/Dokumenty/3dChess/shaders/vshaderWithoutTexture.txt",NULL,"/home/piotrek/Dokumenty/3dChess/shaders/fshaderWithoutTexture.txt"); //Wczytaj program cieniujący
+    shaderProgram =new ShaderProgram("/home/piotrek/Dokumenty/3dChess/shaders/vshaderWithTexture.txt", NULL, "/home/piotrek/Dokumenty/3dChess/shaders/fshaderWithTexture.txt"); //Wczytaj program cieniujący
 
     //*****Przygotowanie do rysowania pojedynczego obiektu*******
     //Zbuduj VBO z danymi obiektu do narysowania
-    boardVerticesBuffer =makeBuffer(vertices, vertexCount, sizeof(float) * 4); //VBO ze współrzędnymi wierzchołków
-    boardColorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
-    boardNormalsBuffer =makeBuffer(normals, vertexCount, sizeof(float) * 4);//VBO z wektorami normalnymi wierzchołków
-    boardCoordsBuffer =makeBuffer(texCoords, vertexCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
+    boardVerticesBuffer =makeBuffer(boardVertices, boardVertexCount, sizeof(float) * 4); //VBO ze współrzędnymi wierzchołków
+    boardNormalsBuffer =makeBuffer(boardNormals, boardVertexCount, sizeof(float) * 4);//VBO z wektorami normalnymi wierzchołków
+    boardCoordsBuffer =makeBuffer(boardTexCoords, boardVertexCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
 
     //Zbuduj VAO wiążący atrybuty z konkretnymi VBO
     glGenVertexArrays(1,&boardVao); //Wygeneruj uchwyt na VAO i zapisz go do zmiennej globalnej
 
     glBindVertexArray(boardVao); //Uaktywnij nowo utworzony VAO
 
-    assignVBOtoAttribute(shaderProgramWithTexture, "vertex", boardVerticesBuffer, 4); //"vertex" odnosi się do deklaracji "in vec4 vertex;" w vertex shaderze
-    assignVBOtoAttribute(shaderProgramWithTexture, "color", boardColorsBuffer, 4); //"color" odnosi się do deklaracji "in vec4 color;" w vertex shaderze
-    assignVBOtoAttribute(shaderProgramWithTexture, "normal", boardNormalsBuffer, 4); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
-    assignVBOtoAttribute(shaderProgramWithTexture, "texcoord", boardCoordsBuffer, 2); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
-
-    assignVBOtoAttribute(shaderProgramWithoutTexture, "vertex", boardVerticesBuffer, 4); //"vertex" odnosi się do deklaracji "in vec4 vertex;" w vertex shaderze
-    assignVBOtoAttribute(shaderProgramWithoutTexture, "color", boardColorsBuffer, 4); //"color" odnosi się do deklaracji "in vec4 color;" w vertex shaderze
-    assignVBOtoAttribute(shaderProgramWithoutTexture, "normal", boardNormalsBuffer, 4); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
-
+    assignVBOtoAttribute(shaderProgram, "vertex", boardVerticesBuffer, 4); //"vertex" odnosi się do deklaracji "in vec4 vertex;" w vertex shaderze
+    assignVBOtoAttribute(shaderProgram, "normal", boardNormalsBuffer, 4); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
+    assignVBOtoAttribute(shaderProgram, "texcoord", boardCoordsBuffer, 2); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
 
     /* INDEKSY W TABLICY PIECESVBO NA PODSTAWIE WARTOSCI PIECETYPE ENUM */
 
     for(int pieceIndex=0;pieceIndex<PIECESAMOUNT;pieceIndex++){
 
         PiecesVBO[pieceIndex].verticesBuffer =makeBuffer(OBJModels[pieceIndex].vertices, OBJModels[pieceIndex].vertexCount, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
-        //PiecesVBO[pieceIndex].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
         PiecesVBO[pieceIndex].normalsBuffer =makeBuffer(OBJModels[pieceIndex].normals, OBJModels[pieceIndex].vertexCount, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
         PiecesVBO[pieceIndex].texCoordsBuffer =makeBuffer(OBJModels[pieceIndex].texcoords, OBJModels[pieceIndex].vertexCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
         PiecesVBO[pieceIndex].vertexCount= OBJModels[pieceIndex].vertexCount;
-        // WAZNE!!!! TRZEBA ZMIENIC vertexCount NA PRAWDZIWA WARTOSC WYNIKAJACA Z OBIEKTU!
 
         //Zbuduj VAO wiążący atrybuty z konkretnymi VBO
         glGenVertexArrays(1,&PiecesVAO[pieceIndex]); //Wygeneruj uchwyt na VAO i zapisz go do zmiennej globalnej
 
         glBindVertexArray(PiecesVAO[pieceIndex]); //Uaktywnij nowo utworzony VAO
 
-        assignVBOtoAttribute(shaderProgramWithTexture, "vertex", PiecesVBO[pieceIndex].verticesBuffer, 3); //"vertex" odnosi się do deklaracji "in vec4 vertex;" w vertex shaderze
-        //assignVBOtoAttribute(shaderProgramWithTexture, "color", PiecesVBO[pieceIndex].colorsBuffer, 4); //"color" odnosi się do deklaracji "in vec4 color;" w vertex shaderze
-        assignVBOtoAttribute(shaderProgramWithTexture, "normal", PiecesVBO[pieceIndex].normalsBuffer, 3); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
-        assignVBOtoAttribute(shaderProgramWithTexture, "texcoord", PiecesVBO[pieceIndex].texCoordsBuffer, 2); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
+        assignVBOtoAttribute(shaderProgram, "vertex", PiecesVBO[pieceIndex].verticesBuffer, 3); //"vertex" odnosi się do deklaracji "in vec4 vertex;" w vertex shaderze
+        assignVBOtoAttribute(shaderProgram, "normal", PiecesVBO[pieceIndex].normalsBuffer, 3); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
+        assignVBOtoAttribute(shaderProgram, "texcoord", PiecesVBO[pieceIndex].texCoordsBuffer, 2); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
 
     }
-
-    /*
-
-    float *newpos=cubePositions;
-    float *newnorm=cubeNormals;
-    float *newtexels=cubeTexels;
-
-    PiecesVBO[0].verticesBuffer =makeBuffer(newpos, cubeVertices, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
-    //PiecesVBO[0].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
-    PiecesVBO[0].normalsBuffer =makeBuffer(newnorm, cubeVertices, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
-    PiecesVBO[0].texCoordsBuffer =makeBuffer(newtexels, cubeVertices, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
-    PiecesVBO[0].vertexCount= cubeVertices;
-    // WAZNE!!!! TRZEBA ZMIENIC vertexCount NA PRAWDZIWA WARTOSC WYNIKAJACA Z OBIEKTU!
-
-     */
-
-
-/*
-    float *newpos=bishopVertices;
-    float *newnorm=bishopNormals;
-    float *newtexels=bishopTexCoords;
-    int vCount=bishopVertexCount;
-
-    PiecesVBO[0].verticesBuffer =makeBuffer(newpos, vCount, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
-    //PiecesVBO[0].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
-    PiecesVBO[0].normalsBuffer =makeBuffer(newnorm, vCount, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
-    PiecesVBO[0].texCoordsBuffer =makeBuffer(newtexels, vCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
-    PiecesVBO[0].vertexCount= vCount;
-    // WAZNE!!!! TRZEBA ZMIENIC vertexCount NA PRAWDZIWA WARTOSC WYNIKAJACA Z OBIEKTU!
-
-*/
-/*
-
-
-    PiecesVBO[0].verticesBuffer =makeBuffer(&shapes[0].mesh.positions, shapes[0].mesh.positions.size()/3, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
-    //PiecesVBO[0].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
-    PiecesVBO[0].normalsBuffer =makeBuffer(&shapes[0].mesh.normals, shapes[0].mesh.positions.size()/3, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
-    PiecesVBO[0].texCoordsBuffer =makeBuffer(&shapes[0].mesh.texcoords, shapes[0].mesh.positions.size()/2, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
-    PiecesVBO[0].vertexCount= shapes[0].mesh.positions.size()/2;
-
-
-    for (size_t v = 0; v < shapes[0].mesh.normals.size() / 3; v++) {
-        printf("  v[%ld] = %f, %f, %f,\n", v,
-               shapes[0].mesh.normals[3*v+0],
-               shapes[0].mesh.normals[3*v+1],
-               shapes[0].mesh.normals[3*v+2]);
-    }
-
-*/
-
-/*
-
-    std::vector< float > vertices;
-    std::vector< float > texcoords;
-    std::vector< float > normals;
-
-
-    std::vector< glm::vec3 > verticesglm;
-    std::vector< glm::vec2 > texcoordsglm;
-    std::vector< glm::vec3 > normalsglm; // Won't be used at the moment.
-    bool res = loadOBJ("/home/piotrek/Dokumenty/3dChess/models/pawn.obj", verticesglm, texcoordsglm, normalsglm);
-
-    for(int i=0;i<verticesglm.size();i++){
-        vertices.push_back(verticesglm[i].x);
-        vertices.push_back(verticesglm[i].y);
-        vertices.push_back(verticesglm[i].z);
-    }
-
-    for(int i=0;i<normalsglm.size();i++){
-        normals.push_back(normalsglm[i].x);
-        normals.push_back(normalsglm[i].y);
-        normals.push_back(normalsglm[i].z);
-    }
-
-    for(int i=0;i<texcoordsglm.size();i++){
-        texcoords.push_back(texcoordsglm[i].x);
-        texcoords.push_back(texcoordsglm[i].y);
-    }
-
-    for(int i=0;i<texcoords.size();i++) {
-        cout << texcoords[i] << endl;
-    }
-    */
-/*
-    PiecesVBO[0].verticesBuffer =makeBuffer(&vertices[0], vertexCount, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
-    //PiecesVBO[pieceIndex].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
-    PiecesVBO[0].normalsBuffer =makeBuffer(&normals[0], vertexCount, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
-    PiecesVBO[0].texCoordsBuffer =makeBuffer(&texCoords[0], vertexCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
-    PiecesVBO[0].vertexCount= texcoords.size()/2;
-
-*/
-
-
-
-
-
-    /*
-    float *newpos=bishopVertices;
-    float *newnorm=bishopNormals;
-    float *newtexels=bishopTexCoords;
-    int vCount=bishopVertexCount;
-
-    PiecesVBO[0].verticesBuffer =makeBuffer(bishopVertices, vCount, sizeof(float) * 3); //VBO ze współrzędnymi wierzchołków
-    //PiecesVBO[0].colorsBuffer =makeBuffer(colors, vertexCount, sizeof(float) * 4);//VBO z kolorami wierzchołków
-    PiecesVBO[0].normalsBuffer =makeBuffer(bishopNormals, vCount, sizeof(float) * 3);//VBO z wektorami normalnymi wierzchołków
-    PiecesVBO[0].texCoordsBuffer =makeBuffer(bishopTexCoords, vCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
-    PiecesVBO[0].vertexCount= vCount;
-
-    //Zbuduj VAO wiążący atrybuty z konkretnymi VBO
-    glGenVertexArrays(1,&PiecesVAO[0]); //Wygeneruj uchwyt na VAO i zapisz go do zmiennej globalnej
-
-    glBindVertexArray(PiecesVAO[0]); //Uaktywnij nowo utworzony VAO
-
-    assignVBOtoAttribute(shaderProgramWithTexture, "vertex", PiecesVBO[0].verticesBuffer, 3); //"vertex" odnosi się do deklaracji "in vec4 vertex;" w vertex shaderze
-    //assignVBOtoAttribute(shaderProgramWithTexture, "color", PiecesVBO[0].colorsBuffer, 4); //"color" odnosi się do deklaracji "in vec4 color;" w vertex shaderze
-    assignVBOtoAttribute(shaderProgramWithTexture, "normal", PiecesVBO[0].normalsBuffer, 3); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
-    assignVBOtoAttribute(shaderProgramWithTexture, "texcoord", PiecesVBO[0].texCoordsBuffer, 2); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
-
-
-*/
-
-
-
-
 
     glBindVertexArray(0); //Dezaktywuj VAO
     //******Koniec przygotowania obiektu************
@@ -426,11 +263,10 @@ void initOpenGLProgram(GLFWwindow* window) {
 
 //Zwolnienie zasobów zajętych przez program
 void freeOpenGLProgram() {
-    delete shaderProgramWithTexture; //Usunięcie programu cieniującego
+    delete shaderProgram; //Usunięcie programu cieniującego
 
     glDeleteVertexArrays(1,&boardVao); //Usunięcie vao
     glDeleteBuffers(1,&boardVerticesBuffer); //Usunięcie VBO z wierzchołkami
-    glDeleteBuffers(1,&boardColorsBuffer); //Usunięcie VBO z kolorami
     glDeleteBuffers(1,&boardNormalsBuffer); //Usunięcie VBO z wektorami normalnymi
 
 
@@ -440,7 +276,7 @@ void freeOpenGLProgram() {
 
 }
 
-void drawObjectWithTexture(GLuint vao, int vertexCount,ShaderProgram *shaderProgram,GLuint texture,mat4 mP, mat4 mV, mat4 mM){
+void drawObject(GLuint vao, int vertexCount, ShaderProgram *shaderProgram, GLuint texture, mat4 mP, mat4 mV, mat4 mM){
 
     //Włączenie programu cieniującego, który ma zostać użyty do rysowania
     //W tym programie wystarczyłoby wywołać to raz, w setupShaders, ale chodzi o pokazanie,
@@ -449,7 +285,7 @@ void drawObjectWithTexture(GLuint vao, int vertexCount,ShaderProgram *shaderProg
 
     //Przekaż do shadera macierze P,V i M.
     //W linijkach poniżej, polecenie:
-    //  shaderProgramWithTexture->getUniformLocation("P")
+    //  shaderProgram->getUniformLocation("P")
     //pobiera numer slotu odpowiadającego zmiennej jednorodnej o podanej nazwie
     //UWAGA! "P" w powyższym poleceniu odpowiada deklaracji "uniform mat4 P;" w vertex shaderze,
     //a mP w glm::value_ptr(mP) odpowiada argumentowi  "mat4 mP;" TYM pliku.
@@ -476,37 +312,6 @@ void drawObjectWithTexture(GLuint vao, int vertexCount,ShaderProgram *shaderProg
     glBindVertexArray(0);
 }
 
-void drawObject(GLuint vao, int vertexCount,ShaderProgram *shaderProgram, mat4 mP, mat4 mV, mat4 mM) {
-    //Włączenie programu cieniującego, który ma zostać użyty do rysowania
-    //W tym programie wystarczyłoby wywołać to raz, w setupShaders, ale chodzi o pokazanie,
-    //że mozna zmieniać program cieniujący podczas rysowania jednej sceny
-    shaderProgram->use();
-
-    //Przekaż do shadera macierze P,V i M.
-    //W linijkach poniżej, polecenie:
-    //  shaderProgramWithTexture->getUniformLocation("P")
-    //pobiera numer slotu odpowiadającego zmiennej jednorodnej o podanej nazwie
-    //UWAGA! "P" w powyższym poleceniu odpowiada deklaracji "uniform mat4 P;" w vertex shaderze,
-    //a mP w glm::value_ptr(mP) odpowiada argumentowi  "mat4 mP;" TYM pliku.
-    //Cała poniższa linijka przekazuje do zmiennej jednorodnej P w vertex shaderze dane z argumentu mP niniejszej funkcji
-    //Pozostałe polecenia działają podobnie.
-    glUniformMatrix4fv(shaderProgram->getUniformLocation("P"),1, false, glm::value_ptr(mP));
-    glUniformMatrix4fv(shaderProgram->getUniformLocation("V"),1, false, glm::value_ptr(mV));
-    glUniformMatrix4fv(shaderProgram->getUniformLocation("M"),1, false, glm::value_ptr(mM));
-
-    glUniform4f(shaderProgram->getUniformLocation("lpos"),0,0,-5,1);
-
-    //Uaktywnienie VAO i tym samym uaktywnienie predefiniowanych w tym VAO powiązań slotów atrybutów z tablicami z danymi
-    glBindVertexArray(vao);
-
-    //Narysowanie obiektu
-
-    glDrawArrays(GL_TRIANGLES,0,vertexCount);
-
-    //Posprzątanie po sobie (niekonieczne w sumie jeżeli korzystamy z VAO dla każdego rysowanego obiektu)
-    glBindVertexArray(0);
-}
-
 void drawBoard(GLuint boardvao, ShaderProgram *shaderProgram,glm::mat4 P,glm::mat4 V){
 
     //Wylicz macierz modelu rysowanego obiektu
@@ -516,7 +321,7 @@ void drawBoard(GLuint boardvao, ShaderProgram *shaderProgram,glm::mat4 P,glm::ma
     M = glm::scale(M, glm::vec3(0.5f*BOARDSIDESIZE, 0.5f*BOARDSIDESIZE*BOARDHEIGHTRATIO, 0.5f*BOARDSIDESIZE));
 
     //Narysuj plansze
-    drawObjectWithTexture(boardVao, vertexCount,shaderProgramWithTexture,textures[board], P, V, M);
+    drawObject(boardVao, boardVertexCount, shaderProgram, textures[board], P, V, M);
 }
 
 void drawPiece(Tile piece,int horizontalIndex,int verticalIndex,ShaderProgram *shaderProgram,glm::mat4 P,glm::mat4 V){
@@ -527,9 +332,7 @@ void drawPiece(Tile piece,int horizontalIndex,int verticalIndex,ShaderProgram *s
 
     if(piece.type!=None) {
         //Narysuj bierke
-        drawObjectWithTexture(PiecesVAO[piece.type], PiecesVBO[piece.type].vertexCount,shaderProgram, textures[piece.colour], P, V, M);
-        //WAZNE!!! PIECESVBO vertexCount TRZEBA ZMIENIC NA WARTOSCI WYNIKAJACA Z ODELU
-
+        drawObject(PiecesVAO[piece.type], PiecesVBO[piece.type].vertexCount, shaderProgram, textures[piece.colour], P, V, M);
     }
 
 }
@@ -540,14 +343,6 @@ void drawScene(GLFWwindow* window) {
 
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT); //Wykonaj czyszczenie bufora kolorów
 
-   /* glLineWidth(2.5);
-    glColor3f(1.0, 0.0, 0.0);
-    glBegin(GL_LINES);
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(16.0, 0, 0);
-    glEnd();
-    */
-
     glm::mat4 P = glm::perspective(FieldOfView * PI / 180, (GLfloat)WINDOWWIDTH/(GLfloat)WINDOWHEIGHT, 1.0f, 50.0f); //Wylicz macierz rzutowania
 
     GLfloat camX = sin(cameraHorizontalAngle) * distanceFromTarget *cos(cameraVerticalAngle);
@@ -557,31 +352,18 @@ void drawScene(GLFWwindow* window) {
     glm::mat4 V = glm::lookAt(glm::vec3(camX, camY, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
     //Narysuj plansze
-    drawBoard(boardVao,shaderProgramWithTexture,P,V);
+    drawBoard(boardVao, shaderProgram, P, V);
 
     //TRANSLATE BOARD
     Tile** boardsnapshot=game->getBoardSnapshot();
 
 
-
     for(int j=0;j<TILECOUNT;j++){
         for (int i=0;i<TILECOUNT;i++){
-            drawPiece(boardsnapshot[j][i],2*i,2*j,shaderProgramWithTexture,P,V);
+            drawPiece(boardsnapshot[j][i],2*i,2*j, shaderProgram, P, V);
         }
     }
 
-
-
-
-
-
-/*
-    glm::mat4 M = glm::mat4(1.0f);
-    //M = glm::scale(M, glm::vec3(0.1, 0.1, 0.1));
-    drawObject(PiecesVAO[0], PiecesVBO[0].vertexCount,shaderProgramWithoutTexture, P, V, M);
-
-
- */
     //Przerzuć tylny bufor na przedni
     glfwSwapBuffers(window);
 

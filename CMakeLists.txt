@@ -5,7 +5,7 @@ project(3dChess)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(SOURCE_FILES main.cpp Game.cpp Game.h Player.cpp Player.h Piece.cpp Piece.h Board.cpp Board.h Declarations.h Reader.cpp Reader.h Shaderprogram.cpp Shaderprogram.h Cube.cpp Cube.h Model.cpp Model.h lodepng.cpp lodepng.h models/bishop.h models/pawn.h models/king.h models/knight.h models/queen.h models/rook.h)
+set(SOURCE_FILES main.cpp Game.cpp Game.h Player.cpp Player.h Piece.cpp Piece.h Board.cpp Board.h Declarations.h Reader.cpp Reader.h Shaderprogram.cpp Shaderprogram.h lodepng.cpp lodepng.h models/bishop.h models/pawn.h models/king.h models/knight.h models/queen.h models/rook.h models/board.h)
 add_executable(3dChess ${SOURCE_FILES})
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)

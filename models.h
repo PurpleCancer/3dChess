@@ -13,5 +13,7 @@
 #include "models/queen.h"
 #include "models/king.h"
 
+#include "models/board.h"
+
 
 #endif //INC_3DCHESS_MODELS_H

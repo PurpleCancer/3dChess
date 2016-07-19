@@ -39,6 +39,15 @@ struct OBJModel{
     int vertexCount;
 };
 
+enum textureEnum {
+    white=0,
+    black=1,
+    board=2,
+    boardSides=3,
+    boardBottom=4,
+
+};
+
 
 
 
