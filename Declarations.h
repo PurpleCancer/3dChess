@@ -8,6 +8,7 @@
 #define BOARD_HEIGHT 8
 #define BOARD_WIDTH 8
 
+#include <glm/detail/type_vec.hpp>
 #include "Constants.h"
 
 
@@ -47,6 +48,8 @@ enum textureEnum {
     boardBottom=4,
 
 };
+
+
 
 
 

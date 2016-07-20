@@ -6,33 +6,21 @@ uniform mat4 V;
 uniform mat4 M;
 
 
+
 //Atrybuty
-in vec4 vertex; //wspolrzedne wierzcholka w przestrzeni modelu
-in vec4 color;  //kolor wierzcholka (na razie ignorowany)
-in vec4 normal; //wektor normalny w wierzcholku (na razie ignorowany)
+in vec3 vertex; //wspolrzedne wierzcholka w przestrzeni modelu
+in vec3 color;  //kolor wierzcholka (na razie ignorowany)
+in vec3 normal; //wektor normalny w wierzcholku (na razie ignorowany)
 in vec2 texcoord;
 
-out vec4 iColor;
-out vec2 texCoord;
 
-out vec4 vL;
-out vec4 vN;
-out vec4 vV;
-
-uniform vec4 lpos;
-
-void main(void) {
-
-gl_Position=P*V*M*vertex;
+out vec3 Normal;
+out vec3 FragmentPosition;
 
 
-vL=normalize(V*lpos-V*M*vertex); // oka
-vN=normalize(V*M*normal);
-
-vV=normalize(vec4(0,0,0,1)-V*M*vertex);
-
-iColor=color;
-texCoord=texcoord;
-
-
+void main()
+{
+    gl_Position = P * V * M * vec4(vertex,1.0f);
+    FragmentPosition = vec3(M * vec4(vertex,1.0f));
+    Normal = normal;
 }

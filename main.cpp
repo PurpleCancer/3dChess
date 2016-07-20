@@ -30,6 +30,13 @@ struct VBOstruct{
     int vertexCount;
 };
 
+
+struct light_t{
+
+    glm::vec3 position;
+    glm::vec3 color;
+};
+
 //Uchwyty na shadery
 
 //Wskaźnik na obiekt reprezentujący program cieniujący.
@@ -63,6 +70,7 @@ GLfloat FieldOfViewMax=1000.0f;
 
 //ZMIENNE I STALE SWIATLA
 
+
 float ambient[]={
         0,0,0,1
 };
@@ -75,11 +83,6 @@ float specular[]={
         0.5,0.5,0.5,1
 };
 
-
-float lightPos[]={
-        0,-1,-1,0
-};
-
 const int shininess=50;
 
 //ZMIENNE GLOBALNE
@@ -88,6 +91,7 @@ Game* game;
 OBJModel OBJModels[PIECESAMOUNT];
 GLuint textures[TEXTURESAMOUNT];
 
+light_t lights[2];
 
 
 
@@ -185,6 +189,15 @@ void modelsinit(){
     OBJModels[King].vertexCount=kingVertexCount;
 }
 
+
+void lightsinit(){
+    lights[0].position.x=10;
+    lights[0].position.y=10;
+    lights[0].position.z=10;
+
+
+}
+
 //Procedura inicjująca
 void initOpenGLProgram(GLFWwindow* window) {
     //************Tutaj umieszczaj kod, który należy wykonać raz, na początku programu************
@@ -252,11 +265,11 @@ void initOpenGLProgram(GLFWwindow* window) {
     //******Koniec przygotowania obiektu************
 
     glEnable(GL_NORMALIZE);
-    glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,ambient);
-    glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,diffuse);
-    glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,specular);
+    //glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,ambient);
+    //glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,diffuse);
+    //glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,specular);
 
-    glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shininess);
+    //glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shininess);
 
 
 }
@@ -295,7 +308,17 @@ void drawObject(GLuint vao, int vertexCount, ShaderProgram *shaderProgram, GLuin
     glUniformMatrix4fv(shaderProgram->getUniformLocation("V"),1, false, glm::value_ptr(mV));
     glUniformMatrix4fv(shaderProgram->getUniformLocation("M"),1, false, glm::value_ptr(mM));
 
-    glUniform4f(shaderProgram->getUniformLocation("lpos"),0,0,-5,1);
+    //glUniform3f(shaderProgram->getUniformLocation("light1Position"),10,10,10);
+
+    //GLint lightPosLoc = glGetUniformLocation(lightingShader.Program, "lightPos");
+
+    //glUniform3f(shaderProgram->getUniformLocation("light1Posistion"), lights[0].position.x, lights[0].position.y, lights[0].position.z);
+    //glUniform3f(shaderProgram->getUniformLocation("light1Posistion"), 0, 10, 0);
+
+    //GLint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
+    // //glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
+
+
 
 
     //Uaktywnienie tekstury
@@ -348,6 +371,10 @@ void drawScene(GLFWwindow* window) {
     GLfloat camX = sin(cameraHorizontalAngle) * distanceFromTarget *cos(cameraVerticalAngle);
     GLfloat camZ = cos(cameraHorizontalAngle) * distanceFromTarget *cos(cameraVerticalAngle);
     GLfloat camY=sin(cameraVerticalAngle) * distanceFromTarget ;
+
+    //lights[0].position.x=camX;
+    //lights[0].position.y=camY;
+    //lights[0].position.z=camZ;
 
     glm::mat4 V = glm::lookAt(glm::vec3(camX, camY, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
