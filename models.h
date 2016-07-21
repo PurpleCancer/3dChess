@@ -14,6 +14,7 @@
 #include "models/king.h"
 
 #include "models/board.h"
+#include "models/cube.h"
 
 
 #endif //INC_3DCHESS_MODELS_H

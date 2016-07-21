@@ -7,6 +7,7 @@ uniform mat4 M;
 
 
 
+
 //Atrybuty
 in vec3 vertex; //wspolrzedne wierzcholka w przestrzeni modelu
 in vec3 color;  //kolor wierzcholka (na razie ignorowany)
@@ -16,11 +17,12 @@ in vec2 texcoord;
 
 out vec3 Normal;
 out vec3 FragmentPosition;
-
+out vec2 Texcoord;
 
 void main()
 {
     gl_Position = P * V * M * vec4(vertex,1.0f);
     FragmentPosition = vec3(M * vec4(vertex,1.0f));
-    Normal = normal;
+    Normal = mat3(transpose(inverse(M))) * normal;
+    Texcoord=texcoord;
 }

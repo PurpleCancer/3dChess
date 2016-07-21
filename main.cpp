@@ -18,10 +18,7 @@
 using namespace glm;
 
 
-
-
-
-//Struct nie mogacy byc w Declarations.h
+//Structy nie mogace byc w Declarations.h
 
 struct VBOstruct{
     GLuint verticesBuffer;
@@ -30,12 +27,21 @@ struct VBOstruct{
     int vertexCount;
 };
 
-
 struct light_t{
-
     glm::vec3 position;
     glm::vec3 color;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
 };
+
+struct material_t {
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+    float shininess;
+};
+
 
 //Uchwyty na shadery
 
@@ -67,23 +73,7 @@ GLfloat FieldOfView = 100.0f;
 GLfloat FieldOfViewMin= 1.0f;
 GLfloat FieldOfViewMax=1000.0f;
 
-
-//ZMIENNE I STALE SWIATLA
-
-
-float ambient[]={
-        0,0,0,1
-};
-
-float diffuse[]={
-        0.7,0.5,0.5,1,
-};
-
-float specular[]={
-        0.5,0.5,0.5,1
-};
-
-const int shininess=50;
+glm::vec3 camera;
 
 //ZMIENNE GLOBALNE
 
@@ -93,7 +83,8 @@ GLuint textures[TEXTURESAMOUNT];
 
 light_t lights[2];
 
-
+material_t boardMaterial;
+material_t pieceMaterial;
 
 //Procedura obsługi błędów
 void error_callback(int error, const char* description) {
@@ -191,10 +182,34 @@ void modelsinit(){
 
 
 void lightsinit(){
-    lights[0].position.x=10;
-    lights[0].position.y=10;
-    lights[0].position.z=10;
 
+    lights[0].position=glm::vec3(0.0,1.0f,0.0f);
+    lights[0].ambient=glm::vec3(0.2f, 0.2f, 0.2f);
+    lights[0].diffuse=glm::vec3(0.5f, 0.5f, 0.5f);
+    lights[0].specular=glm::vec3(1.0f, 1.0f, 1.0f);
+}
+
+void materialsinit(){
+
+    boardMaterial.ambient=glm::vec3(1.0f, 0.5f, 0.31f);
+    boardMaterial.diffuse=glm::vec3(1.0f, 0.5f, 0.31f);
+    boardMaterial.specular=glm::vec3(0.508273,	0.508273,	0.508273);
+    boardMaterial.shininess=0.4f;
+
+    pieceMaterial.ambient=glm::vec3(1.0f, 0.5f, 0.31f);
+    pieceMaterial.diffuse=glm::vec3(1.0f, 0.5f, 0.31f);
+    pieceMaterial.specular=glm::vec3(0.5f, 0.5f, 0.5f);
+    pieceMaterial.shininess=32.0f;
+
+}
+
+
+void texturesinit(){
+
+    //WCZYTYWANIE TEKSTUR
+    texturesInput(textures[board],"/home/piotrek/Dokumenty/3dChess/textures/marbleBoard.png");
+    texturesInput(textures[white],"/home/piotrek/Dokumenty/3dChess/textures/white.png");
+    texturesInput(textures[black],"/home/piotrek/Dokumenty/3dChess/textures/black.png");
 
 }
 
@@ -208,18 +223,10 @@ void initOpenGLProgram(GLFWwindow* window) {
     //glEnable(GL_LIGHTING); //Włącz tryb cieniowania
     //glEnable(GL_LIGHT0); //Włącz domyslne światło
 
-    //SWIATLO
-
-    //float lightPos[]={100,100,100,0};
-    //glLightfv(GL_LIGHT0,GL_POSITION,lightPos);
-
-
-    //WCZYTYWANIE TEKSTUR
-    texturesInput(textures[board],"/home/piotrek/Dokumenty/3dChess/textures/marbleBoard.png");
-    texturesInput(textures[white],"/home/piotrek/Dokumenty/3dChess/textures/white.png");
-    texturesInput(textures[black],"/home/piotrek/Dokumenty/3dChess/textures/black.png");
-
     modelsinit();
+    lightsinit();
+    materialsinit();
+    texturesinit();
 
     glfwSetKeyCallback(window, key_callback); //Zarejestruj procedurę obsługi klawiatury
     glfwSetScrollCallback(window, scroll_callback); //Zarejestruj procedure obslugi scrolla
@@ -289,7 +296,7 @@ void freeOpenGLProgram() {
 
 }
 
-void drawObject(GLuint vao, int vertexCount, ShaderProgram *shaderProgram, GLuint texture, mat4 mP, mat4 mV, mat4 mM){
+void drawObject(GLuint vao, int vertexCount, ShaderProgram *shaderProgram, GLuint texture, mat4 mP, mat4 mV, mat4 mM,material_t material){
 
     //Włączenie programu cieniującego, który ma zostać użyty do rysowania
     //W tym programie wystarczyłoby wywołać to raz, w setupShaders, ale chodzi o pokazanie,
@@ -308,17 +315,17 @@ void drawObject(GLuint vao, int vertexCount, ShaderProgram *shaderProgram, GLuin
     glUniformMatrix4fv(shaderProgram->getUniformLocation("V"),1, false, glm::value_ptr(mV));
     glUniformMatrix4fv(shaderProgram->getUniformLocation("M"),1, false, glm::value_ptr(mM));
 
-    //glUniform3f(shaderProgram->getUniformLocation("light1Position"),10,10,10);
+    glUniform3f(shaderProgram->getUniformLocation("material.ambient"),material.ambient.r,material.ambient.g,material.ambient.b);
+    glUniform3f(shaderProgram->getUniformLocation("material.diffuse"),material.diffuse.r,material.diffuse.g,material.diffuse.b);
+    glUniform3f(shaderProgram->getUniformLocation("material.specular"),material.specular.r,material.specular.g,material.specular.b);
+    glUniform1f(shaderProgram->getUniformLocation("material.shininess"),material.shininess);
 
-    //GLint lightPosLoc = glGetUniformLocation(lightingShader.Program, "lightPos");
+    glUniform3f(shaderProgram->getUniformLocation("light1.position"),lights[0].position.x,lights[0].position.y,lights[0].position.z);
+    glUniform3f(shaderProgram->getUniformLocation("light1.ambient"),lights[0].ambient.r,lights[0].ambient.g,lights[0].ambient.b);
+    glUniform3f(shaderProgram->getUniformLocation("light1.diffuse"),lights[0].diffuse.r,lights[0].diffuse.g,lights[0].diffuse.b);
+    glUniform3f(shaderProgram->getUniformLocation("light1.specular"),lights[0].specular.r,lights[0].specular.g,lights[0].specular.b);
 
-    //glUniform3f(shaderProgram->getUniformLocation("light1Posistion"), lights[0].position.x, lights[0].position.y, lights[0].position.z);
-    //glUniform3f(shaderProgram->getUniformLocation("light1Posistion"), 0, 10, 0);
-
-    //GLint lightPosLoc = glGetUniformLocation(shaderProgram, "lightPos");
-    // //glUniform3f(lightPosLoc, lightPos.x, lightPos.y, lightPos.z);
-
-
+    glUniform3f(shaderProgram->getUniformLocation("cameraPosition"), camera.x, camera.y, camera.z);
 
 
     //Uaktywnienie tekstury
@@ -344,7 +351,7 @@ void drawBoard(GLuint boardvao, ShaderProgram *shaderProgram,glm::mat4 P,glm::ma
     M = glm::scale(M, glm::vec3(0.5f*BOARDSIDESIZE, 0.5f*BOARDSIDESIZE*BOARDHEIGHTRATIO, 0.5f*BOARDSIDESIZE));
 
     //Narysuj plansze
-    drawObject(boardVao, boardVertexCount, shaderProgram, textures[board], P, V, M);
+    drawObject(boardVao, boardVertexCount, shaderProgram, textures[board], P, V, M,boardMaterial);
 }
 
 void drawPiece(Tile piece,int horizontalIndex,int verticalIndex,ShaderProgram *shaderProgram,glm::mat4 P,glm::mat4 V){
@@ -355,7 +362,7 @@ void drawPiece(Tile piece,int horizontalIndex,int verticalIndex,ShaderProgram *s
 
     if(piece.type!=None) {
         //Narysuj bierke
-        drawObject(PiecesVAO[piece.type], PiecesVBO[piece.type].vertexCount, shaderProgram, textures[piece.colour], P, V, M);
+        drawObject(PiecesVAO[piece.type], PiecesVBO[piece.type].vertexCount, shaderProgram, textures[piece.colour], P, V, M,pieceMaterial);
     }
 
 }
@@ -368,15 +375,15 @@ void drawScene(GLFWwindow* window) {
 
     glm::mat4 P = glm::perspective(FieldOfView * PI / 180, (GLfloat)WINDOWWIDTH/(GLfloat)WINDOWHEIGHT, 1.0f, 50.0f); //Wylicz macierz rzutowania
 
-    GLfloat camX = sin(cameraHorizontalAngle) * distanceFromTarget *cos(cameraVerticalAngle);
-    GLfloat camZ = cos(cameraHorizontalAngle) * distanceFromTarget *cos(cameraVerticalAngle);
-    GLfloat camY=sin(cameraVerticalAngle) * distanceFromTarget ;
+    camera.x=sin(cameraHorizontalAngle) * distanceFromTarget *cos(cameraVerticalAngle);
+    camera.y=sin(cameraVerticalAngle) * distanceFromTarget;
+    camera.z=cos(cameraHorizontalAngle) * distanceFromTarget *cos(cameraVerticalAngle);
 
-    //lights[0].position.x=camX;
-    //lights[0].position.y=camY;
-    //lights[0].position.z=camZ;
+    //lights[0].position.x=camera.x;
+    //lights[0].position.y=camera.y;
+    //lights[0].position.z=camera.z;
 
-    glm::mat4 V = glm::lookAt(glm::vec3(camX, camY, camZ), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 V = glm::lookAt(glm::vec3(camera.x, camera.y, camera.z), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
     //Narysuj plansze
     drawBoard(boardVao, shaderProgram, P, V);

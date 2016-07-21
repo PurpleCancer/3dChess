@@ -53,6 +53,7 @@
       <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/models/bishop.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/models/board.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/models/cube.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/models/king.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/models/knight.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/models/pawn.h" isTestSource="false" />
