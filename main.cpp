@@ -35,6 +35,21 @@ struct light_t{
     vec3 specular;
 };
 
+struct spotlight_t {
+    vec3 position;
+    vec3 direction;
+    float cutOff;
+    float outerCutOff;
+
+    float constant;
+    float linear;
+    float quadratic;
+
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
+
 struct material_t {
     glm::vec3 ambient;
     glm::vec3 diffuse;
@@ -82,6 +97,7 @@ OBJModel OBJModels[PIECESAMOUNT];
 GLuint textures[TEXTURESAMOUNT];
 
 light_t lights[2];
+spotlight_t spotLight;
 
 material_t boardMaterial;
 material_t pieceMaterial;
@@ -187,6 +203,18 @@ void lightsinit(){
     lights[0].ambient=glm::vec3(0.2f, 0.2f, 0.2f);
     lights[0].diffuse=glm::vec3(0.5f, 0.5f, 0.5f);
     lights[0].specular=glm::vec3(1.0f, 1.0f, 1.0f);
+
+    spotLight.position=glm::vec3(camera.x,camera.y,camera.z);
+    spotLight.direction=glm::vec3(0.0f,0.0f,0.0f);
+    spotLight.cutOff=glm::cos(glm::radians(12.5f));
+    spotLight.outerCutOff=glm::cos(glm::radians(13.0f));
+    spotLight.constant=1.0f;
+    spotLight.linear=0.09;
+    spotLight.quadratic=0.032;
+    spotLight.ambient=glm::vec3(1.0f, 1.0f, 1.0f);
+    spotLight.diffuse=glm::vec3(0.8f, 0.8f, 0.0f);
+    spotLight.ambient=glm::vec3(0.8f, 0.8f, 0.0f);
+
 }
 
 void materialsinit(){
@@ -327,6 +355,17 @@ void drawObject(GLuint vao, int vertexCount, ShaderProgram *shaderProgram, GLuin
 
     glUniform3f(shaderProgram->getUniformLocation("cameraPosition"), camera.x, camera.y, camera.z);
 
+
+    glUniform3f(shaderProgram->getUniformLocation("spotLight.position"), camera.x, camera.y, camera.z);
+    glUniform3f(shaderProgram->getUniformLocation("spotLight.direction"), spotLight.direction.x, spotLight.direction.y, spotLight.direction.z);
+    glUniform3f(shaderProgram->getUniformLocation("spotLight.ambient"), spotLight.ambient.r, spotLight.ambient.g, spotLight.ambient.b);
+    glUniform3f(shaderProgram->getUniformLocation("spotLight.diffuse"), spotLight.diffuse.r, spotLight.diffuse.g, spotLight.diffuse.b);
+    glUniform3f(shaderProgram->getUniformLocation("spotLight.specular"), spotLight.specular.r, spotLight.specular.g, spotLight.specular.b);
+    glUniform1f(shaderProgram->getUniformLocation("spotLight.constant"), spotLight.constant);
+    glUniform1f(shaderProgram->getUniformLocation("spotLight.linear"), spotLight.linear);
+    glUniform1f(shaderProgram->getUniformLocation("spotLight.quadratic"), spotLight.quadratic);
+    glUniform1f(shaderProgram->getUniformLocation("spotLight.cutOff"), spotLight.cutOff);
+    glUniform1f(shaderProgram->getUniformLocation("spotLight.outerCutOff"), spotLight.outerCutOff);
 
     //Uaktywnienie tekstury
     glBindTexture(GL_TEXTURE_2D,texture);
