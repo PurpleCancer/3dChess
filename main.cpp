@@ -117,7 +117,7 @@ void error_callback(int error, const char* description) {
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
     if(key == GLFW_KEY_W)
-        cameraVerticalAngle==cameraVerticalAdd;
+        cameraVerticalAngle-=cameraVerticalAdd;
     if(key == GLFW_KEY_S)
         cameraVerticalAngle+=cameraVerticalAdd;
     if(key == GLFW_KEY_A)
