@@ -13,9 +13,8 @@
 #include "Declarations.h"
 #include "Game.h"
 #include "models.h"
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
+#include <string>
+#include <string.h>
 
 using namespace glm;
 
@@ -108,6 +107,8 @@ Pole currentTile, previousTile;
 bool newMove = true;
 bool endFlag = false;
 
+std::string wdpath = "/home/piotrek/Dokumenty/";
+
 //Procedura obsługi błędów
 void error_callback(int error, const char* description) {
     fputs(description, stderr);
@@ -169,16 +170,6 @@ void texturesInput(GLuint &textureHandler, string path){
 //Wczytaj obrazek do pamięci KG skojarzonej z uchwytem
     glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*) image.data());
 
-}
-
-void fontsinit(){
-    FT_Library ft;
-    if (FT_Init_FreeType(&ft))
-        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
-
-    FT_Face face;
-    if (FT_New_Face(ft, "fonts/arial.ttf", 0, &face))
-        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 }
 
 void modelsinit(){
@@ -261,14 +252,15 @@ void materialsinit(){
 void texturesinit(){
 
     //WCZYTYWANIE TEKSTUR
-    texturesInput(textures[board],"/home/piotrek/Dokumenty/3dChess/textures/marbleBoard.png");
-    texturesInput(textures[white],"/home/piotrek/Dokumenty/3dChess/textures/white.png");
-    texturesInput(textures[black],"/home/piotrek/Dokumenty/3dChess/textures/black.png");
+    texturesInput(textures[board],wdpath + "3dChess/textures/marbleBoard.png");
+    texturesInput(textures[white],wdpath + "3dChess/textures/white.png");
+    texturesInput(textures[black],wdpath + "3dChess/textures/black.png");
 
 }
 
 //Procedura inicjująca
 void initOpenGLProgram(GLFWwindow* window) {
+
     //************Tutaj umieszczaj kod, który należy wykonać raz, na początku programu************
     //glClearColor(0, 0, 0, 1); //Czyść ekran na czarno
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f); //Czyść ekran na niebieskawo
@@ -284,6 +276,11 @@ void initOpenGLProgram(GLFWwindow* window) {
 
     glfwSetKeyCallback(window, key_callback); //Zarejestruj procedurę obsługi klawiatury
     glfwSetScrollCallback(window, scroll_callback); //Zarejestruj procedure obslugi scrolla
+
+    char *w;
+    w = new char[256];
+
+    strcpy(w, wdpath.c_str());
 
     shaderProgram =new ShaderProgram("/home/piotrek/Dokumenty/3dChess/shaders/vshaderWithTexture.txt", NULL, "/home/piotrek/Dokumenty/3dChess/shaders/fshaderWithTexture.txt"); //Wczytaj program cieniujący
 
@@ -479,7 +476,7 @@ int main(void)
     previousTile.Row = -1;
     previousTile.Column = 1;
 
-    game = new Game("/home/piotrek/Dokumenty/3dChess/games/1.pgn");
+    game = new Game(wdpath + "3dChess/games/1.pgn");
 
     GLFWwindow* window; //Wskaźnik na obiekt reprezentujący okno
 
