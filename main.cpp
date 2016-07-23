@@ -117,9 +117,9 @@ void error_callback(int error, const char* description) {
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
     if(key == GLFW_KEY_W)
-        cameraVerticalAngle+=cameraVerticalAdd;
+        cameraVerticalAngle==cameraVerticalAdd;
     if(key == GLFW_KEY_S)
-        cameraVerticalAngle-=cameraVerticalAdd;
+        cameraVerticalAngle+=cameraVerticalAdd;
     if(key == GLFW_KEY_A)
         cameraHorizontalAngle-=cameraHorizontalAdd;
     if(key == GLFW_KEY_D)
@@ -531,12 +531,21 @@ int main(void)
                 }
 
             }
-            else endFlag = true;
+            else
+            {
+                endFlag = true;
+                newMove = false;
+            }
         }
 
         if(endFlag)
         {
-            spotLight.position=glm::vec3(0.0f,-10.0f,0.0f);
+            spotLight.specular=glm::vec3(1.0f, 0.0f, 0.0f);
+            spotLight.ambient=glm::vec3(1.0f, 0.0f, 0.0f);
+            spotLight.diffuse=glm::vec3(1.0f, 0.0f, 0.0f);
+            spotLight.position.x = (TILECOUNT-1-previousTile.Column) * BOARDSIDESIZE / TILECOUNT - PIECEMOVINGCONSTANT;
+            spotLight.position.y = 10.0f;
+            spotLight.position.z = previousTile.Row * BOARDSIDESIZE / TILECOUNT - PIECEMOVINGCONSTANT;
 
             if(newMove)break;
         }
