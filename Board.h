@@ -17,7 +17,7 @@ class Board {
 public:
     void UpdateSnapshot();
     void Print();
-    void Move(const string s);
+    Pole Move(const string s);
     Tile** getBoardSnapshot();
 
     Board();

@@ -11,16 +11,18 @@ void Game::Print()
     board->Print();
 }
 
-bool Game::Move()
-{
+Pole Game::Move()
+{   Pole p;
     string move = reader->getNextMove();
-    if(move.empty())
+    if(move.empty()) {
         //no more moves
-        return false;
+        p.Row = -1;
+        p.Column = -1;
+    }
     else
     {
-        board->Move(move);
-        return true;
+        p = board->Move(move);
+        return p;
     }
 }
 

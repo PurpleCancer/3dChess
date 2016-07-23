@@ -75,13 +75,13 @@ VBOstruct PiecesVBO[PIECESAMOUNT];
 
 //Zmienne i stale kamery
 GLfloat cameraHorizontalAngle=0.0f;
-GLfloat cameraVerticalAngle=PI/2.1; //Patrzenie z góry przy inicie
+GLfloat cameraVerticalAngle=PI/1.4; //Patrzenie z góry przy inicie
 
 GLfloat cameraHorizontalAdd=0.05f;
 GLfloat cameraVerticalAdd=0.05f;
 
 glm::vec3 targetPosition=glm::vec3(0.0f, 0.0f, 0.0f);
-GLfloat distanceFromTarget=20.0f;
+GLfloat distanceFromTarget=15.0f;
 
 GLfloat FieldOfView = 100.0f;
 
@@ -102,6 +102,9 @@ spotlight_t spotLight;
 material_t boardMaterial;
 material_t pieceMaterial;
 
+Pole currentTile, previousTile;
+bool newMove = true;
+
 //Procedura obsługi błędów
 void error_callback(int error, const char* description) {
     fputs(description, stderr);
@@ -117,6 +120,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         cameraHorizontalAngle-=cameraHorizontalAdd;
     if(key == GLFW_KEY_D)
         cameraHorizontalAngle+=cameraHorizontalAdd;
+    if(key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+        newMove = true;
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
@@ -199,21 +204,29 @@ void modelsinit(){
 
 void lightsinit(){
 
-    lights[0].position=glm::vec3(0.0,1.0f,0.0f);
+    lights[0].position=glm::vec3(0.0,10.0f,0.0f);
     lights[0].ambient=glm::vec3(0.2f, 0.2f, 0.2f);
     lights[0].diffuse=glm::vec3(0.5f, 0.5f, 0.5f);
-    lights[0].specular=glm::vec3(1.0f, 1.0f, 1.0f);
+    lights[0].specular=glm::vec3(0.2f, 0.2f, 0.2f);
 
-    spotLight.position=glm::vec3(camera.x,camera.y,camera.z);
-    spotLight.direction=glm::vec3(0.0f,0.0f,0.0f);
-    spotLight.cutOff=glm::cos(glm::radians(12.5f));
-    spotLight.outerCutOff=glm::cos(glm::radians(13.0f));
+    spotLight.position=glm::vec3(0.0f,-10.0f,0.0f);
+    spotLight.direction=glm::vec3(0.0f,-1.0f,0.0f);
+    spotLight.direction=glm::normalize(spotLight.direction);
+
+
+    spotLight.cutOff=glm::cos(glm::radians(9.5f));
+    spotLight.outerCutOff=glm::cos(glm::radians(10.0f));
     spotLight.constant=1.0f;
     spotLight.linear=0.09;
     spotLight.quadratic=0.032;
     spotLight.ambient=glm::vec3(1.0f, 1.0f, 1.0f);
     spotLight.diffuse=glm::vec3(0.8f, 0.8f, 0.0f);
-    spotLight.ambient=glm::vec3(0.8f, 0.8f, 0.0f);
+
+    //spotLight.ambient=glm::vec3(0.5390625, 0.16796875, 0.8828125);
+    //spotLight.diffuse=glm::vec3(0.5390625, 0.16796875, 0.8828125);
+
+    //spotLight.specular=glm::vec3(0.8f, 0.8f, 0.0f);
+    spotLight.specular=glm::vec3(0.0f, 0.6f, 0.0f);
 
 }
 
@@ -356,7 +369,11 @@ void drawObject(GLuint vao, int vertexCount, ShaderProgram *shaderProgram, GLuin
     glUniform3f(shaderProgram->getUniformLocation("cameraPosition"), camera.x, camera.y, camera.z);
 
 
-    glUniform3f(shaderProgram->getUniformLocation("spotLight.position"), camera.x, camera.y, camera.z);
+
+    //spotLight.direction=glm::vec3(-camera.x,-camera.y,-camera.z);
+    //spotLight.direction=glm::normalize(spotLight.direction);
+
+    glUniform3f(shaderProgram->getUniformLocation("spotLight.position"), spotLight.position.x, spotLight.position.y, spotLight.position.z);
     glUniform3f(shaderProgram->getUniformLocation("spotLight.direction"), spotLight.direction.x, spotLight.direction.y, spotLight.direction.z);
     glUniform3f(shaderProgram->getUniformLocation("spotLight.ambient"), spotLight.ambient.r, spotLight.ambient.g, spotLight.ambient.b);
     glUniform3f(shaderProgram->getUniformLocation("spotLight.diffuse"), spotLight.diffuse.r, spotLight.diffuse.g, spotLight.diffuse.b);
@@ -401,7 +418,7 @@ void drawPiece(Tile piece,int horizontalIndex,int verticalIndex,ShaderProgram *s
 
     if(piece.type!=None) {
         //Narysuj bierke
-        drawObject(PiecesVAO[piece.type], PiecesVBO[piece.type].vertexCount, shaderProgram, textures[piece.colour], P, V, M,pieceMaterial);
+        drawObject(PiecesVAO[piece.type], PiecesVBO[piece.type].vertexCount, shaderProgram, textures[piece.colour], P, V, M, pieceMaterial);
     }
 
 }
@@ -433,7 +450,7 @@ void drawScene(GLFWwindow* window) {
 
     for(int j=0;j<TILECOUNT;j++){
         for (int i=0;i<TILECOUNT;i++){
-            drawPiece(boardsnapshot[j][i],2*i,2*j, shaderProgram, P, V);
+            drawPiece(boardsnapshot[j][i],2*(TILECOUNT-1-i),2*j, shaderProgram, P, V);
         }
     }
 
@@ -444,8 +461,12 @@ void drawScene(GLFWwindow* window) {
 
 int main(void)
 {
+    currentTile.Row = -1;
+    currentTile.Column = -1;
+    previousTile.Row = -1;
+    previousTile.Column = -1;
 
-    game = new Game("/home/piotrek/Dokumenty/3dChess/games/1");
+    game = new Game("/home/piotrek/Dokumenty/3dChess/games/anderssen_dufresne_1852.pgn");
 
     GLFWwindow* window; //Wskaźnik na obiekt reprezentujący okno
 
@@ -477,11 +498,29 @@ int main(void)
 
     glfwSetTime(0); //Wyzeruj licznik czasu
 
+
     //Główna pętla
     while (!glfwWindowShouldClose(window)) //Tak długo jak okno nie powinno zostać zamknięte
     {
-        if(glfwGetTime()>=BREAKBETWEENMOVES){
-            if(game->Move()) glfwSetTime(0);
+        //if(glfwGetTime()>=BREAKBETWEENMOVES){
+        if(newMove){
+            game->Print();
+            previousTile = currentTile;
+            currentTile = game->Move();
+            if(currentTile.Row * currentTile.Column >= 0){
+                //glfwSetTime(0);
+                newMove = false;
+                //spotLight.position.x=currentTile.Row*16;
+                //spotLight.position.y=10.0f;
+                //spotLight.position.z=currentTile.Column*16;
+
+                if(previousTile.Column * previousTile.Row >= -1) {
+                    spotLight.position.x = (TILECOUNT-1-previousTile.Column) * BOARDSIDESIZE / TILECOUNT - PIECEMOVINGCONSTANT;
+                    spotLight.position.y = 10.0f;
+                    spotLight.position.z = previousTile.Row * BOARDSIDESIZE / TILECOUNT - PIECEMOVINGCONSTANT;
+                }
+
+            }
             else break;
         }
 

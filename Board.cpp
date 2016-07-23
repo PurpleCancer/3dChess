@@ -71,8 +71,9 @@ void Board::Print()
     }
 }
 
-void Board::Move(const string s)
+Pole Board::Move(const string s)
 {
+    Pole ret;
     if(s == "O-O")
     {
         cout<<"Kingside castling"<<endl;
@@ -81,10 +82,14 @@ void Board::Move(const string s)
             case White:
                 whitePlayer->KingsideCastling();
                 turn = Black;
+                ret.Row = 0;
+                ret.Column = 6;
                 break;
             case Black:
                 blackPlayer->KingsideCastling();
                 turn = White;
+                ret.Row = 7;
+                ret.Column = 6;
                 break;
             default:
                 cout<<"Kolejka nieznanego gracza"<<endl;
@@ -99,10 +104,14 @@ void Board::Move(const string s)
             case White:
                 whitePlayer->QueensideCastling();
                 turn = Black;
+                ret.Row = 0;
+                ret.Column = 2;
                 break;
             case Black:
                 blackPlayer->QueensideCastling();
                 turn = White;
+                ret.Row = 7;
+                ret.Column = 2;
                 break;
             default:
                 cout<<"Kolejka nieznanego gracza"<<endl;
@@ -207,6 +216,8 @@ void Board::Move(const string s)
                     break;
             }
         }
+        ret.Row = targetRow - 1;
+        ret.Column = targetColumn - 1;
         cout<<endl;
 
         UpdateSnapshot();
@@ -235,7 +246,7 @@ void Board::Move(const string s)
             cout<<j<<':'<<result[i]<<endl;
         }*/
     }
-
+    return ret;
 }
 
 Board::Board()

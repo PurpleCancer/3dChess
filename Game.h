@@ -16,7 +16,7 @@ using namespace std;
 class Game {
 public:
     void Print();
-    bool Move();
+    Pole Move();
     void printGameInfo();
     Tile** getBoardSnapshot();
 

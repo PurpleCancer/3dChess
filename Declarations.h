@@ -33,6 +33,12 @@ struct Tile
     PieceType type;
 };
 
+struct Pole
+{
+    int Row;
+    int Column;
+};
+
 struct OBJModel{
     float *vertices;
     float *normals;
