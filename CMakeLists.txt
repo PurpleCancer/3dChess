@@ -39,10 +39,11 @@ if (GLEW_FOUND)
     link_libraries(${GLEW_LIBRARIES})
 endif()
 
-include_directories(${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIRS})
+find_package(Freetype REQUIRED)
+include_directories(${FREETYPE_INCLUDE_DIRS})
 
 
 
 
 
-target_link_libraries(3dChess glfw libglfw3.a ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+target_link_libraries(3dChess glfw libglfw3.a ${FREETYPE_LIBRARIES} ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})

@@ -13,6 +13,8 @@
 #include "Declarations.h"
 #include "Game.h"
 #include "models.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 
 using namespace glm;
@@ -104,6 +106,7 @@ material_t pieceMaterial;
 
 Pole currentTile, previousTile;
 bool newMove = true;
+bool endFlag = false;
 
 //Procedura obsługi błędów
 void error_callback(int error, const char* description) {
@@ -166,6 +169,16 @@ void texturesInput(GLuint &textureHandler, string path){
 //Wczytaj obrazek do pamięci KG skojarzonej z uchwytem
     glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*) image.data());
 
+}
+
+void fontsinit(){
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft))
+        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+
+    FT_Face face;
+    if (FT_New_Face(ft, "fonts/arial.ttf", 0, &face))
+        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 }
 
 void modelsinit(){
@@ -462,11 +475,11 @@ void drawScene(GLFWwindow* window) {
 int main(void)
 {
     currentTile.Row = -1;
-    currentTile.Column = -1;
+    currentTile.Column = 1;
     previousTile.Row = -1;
-    previousTile.Column = -1;
+    previousTile.Column = 1;
 
-    game = new Game("/home/piotrek/Dokumenty/3dChess/games/anderssen_dufresne_1852.pgn");
+    game = new Game("/home/piotrek/Dokumenty/3dChess/games/1.pgn");
 
     GLFWwindow* window; //Wskaźnik na obiekt reprezentujący okno
 
@@ -503,7 +516,7 @@ int main(void)
     while (!glfwWindowShouldClose(window)) //Tak długo jak okno nie powinno zostać zamknięte
     {
         //if(glfwGetTime()>=BREAKBETWEENMOVES){
-        if(newMove){
+        if(!endFlag && newMove){
             game->Print();
             previousTile = currentTile;
             currentTile = game->Move();
@@ -514,20 +527,28 @@ int main(void)
                 //spotLight.position.y=10.0f;
                 //spotLight.position.z=currentTile.Column*16;
 
-                if(previousTile.Column * previousTile.Row >= -1) {
+                if(previousTile.Column * previousTile.Row >= 0) {
                     spotLight.position.x = (TILECOUNT-1-previousTile.Column) * BOARDSIDESIZE / TILECOUNT - PIECEMOVINGCONSTANT;
                     spotLight.position.y = 10.0f;
                     spotLight.position.z = previousTile.Row * BOARDSIDESIZE / TILECOUNT - PIECEMOVINGCONSTANT;
                 }
 
             }
-            else break;
+            else endFlag = true;
+        }
+
+        if(endFlag)
+        {
+            spotLight.position=glm::vec3(0.0f,-10.0f,0.0f);
+
+            if(newMove)break;
         }
 
 
         drawScene(window); //Wykonaj procedurę rysującą
         glfwPollEvents(); //Wykonaj procedury callback w zalezności od zdarzeń jakie zaszły.
     }
+
 
     freeOpenGLProgram();
 

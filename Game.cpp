@@ -12,18 +12,19 @@ void Game::Print()
 }
 
 Pole Game::Move()
-{   Pole p;
+{
+    Pole p;
     string move = reader->getNextMove();
     if(move.empty()) {
         //no more moves
         p.Row = -1;
-        p.Column = -1;
+        p.Column = 1;
     }
     else
     {
         p = board->Move(move);
-        return p;
     }
+    return p;
 }
 
 void Game::printGameInfo()
