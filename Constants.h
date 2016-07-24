@@ -23,8 +23,8 @@ Place, Fifth Floor, Boston, MA  02110 - 1301  USA
 const float PI = 3.141592653589793f;
 
 //STALE OKNA
-const int WINDOWWIDTH = 1280;
-const int WINDOWHEIGHT = 800;
+const int WINDOWWIDTH = 1024;
+const int WINDOWHEIGHT = 768;
 
 
 //STALA PLANSZY
