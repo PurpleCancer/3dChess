@@ -276,7 +276,7 @@ void initOpenGLProgram(GLFWwindow* window) {
     //*****Przygotowanie do rysowania pojedynczego obiektu*******
     //Zbuduj VBO z danymi obiektu do narysowania
     boardVerticesBuffer =makeBuffer(boardVertices, boardVertexCount, sizeof(float) * 4); //VBO ze współrzędnymi wierzchołków
-    boardNormalsBuffer =makeBuffer(boardNormals, boardVertexCount, sizeof(float) * 4);//VBO z wektorami normalnymi wierzchołków
+    boardNormalsBuffer =makeBuffer(boardVertexNormals, boardVertexCount, sizeof(float) * 4);//VBO z wektorami normalnymi wierzchołków
     boardCoordsBuffer =makeBuffer(boardTexCoords, boardVertexCount, sizeof(float) * 2);//VBO z wektorami normalnymi wierzchołków
 
     //Zbuduj VAO wiążący atrybuty z konkretnymi VBO
@@ -401,9 +401,19 @@ void drawPiece(Tile piece,int horizontalIndex,int verticalIndex,ShaderProgram *s
 
     //Wylicz macierz modelu rysowanego obiektu
     glm::mat4 M = glm::mat4(1.0f);
+
     M = glm::translate(M, glm::vec3(float(horizontalIndex)-PIECEMOVINGCONSTANT,0, float(verticalIndex)-PIECEMOVINGCONSTANT));
 
+
+
     if(piece.type!=None) {
+        if(piece.type==Knight){
+            if(piece.colour==White)
+                M = glm::rotate(M,3*PI/2, glm::vec3(0, 1, 0));
+            if(piece.colour==Black)
+                M = glm::rotate(M,PI/2, glm::vec3(0, 1, 0));
+        }
+
         //Narysuj bierke
         drawObject(PiecesVAO[piece.type], PiecesVBO[piece.type].vertexCount, shaderProgram, textures[piece.colour], P, V, M, pieceMaterial);
     }
@@ -449,7 +459,6 @@ int main(void)
     previousTile.Row = -1;
     previousTile.Column = 1;
 
-    //game = new Game(wdpath + "3dChess/games/1.pgn");
     game= new Game(gamepath);
 
     GLFWwindow* window; //Wskaźnik na obiekt reprezentujący okno
@@ -480,7 +489,7 @@ int main(void)
 
     initOpenGLProgram(window); //Operacje inicjujące
 
-    glfwSetTime(0); //Wyzeruj licznik czasu
+    //glfwSetTime(0); //Wyzeruj licznik czasu
 
     //Główna pętla
     while (!glfwWindowShouldClose(window)) //Tak długo jak okno nie powinno zostać zamknięte

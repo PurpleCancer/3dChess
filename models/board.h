@@ -158,7 +158,7 @@ float boardNormals[]={
 
 };
 
-float vertexNormals[]={
+float boardVertexNormals[]={
         1.0f,-1.0f,-1.0f,1.0f,
         -1.0f, 1.0f,-1.0f,1.0f,
         -1.0f,-1.0f,-1.0f,1.0f,
