@@ -108,6 +108,8 @@ bool newMove = true;
 bool endFlag = false;
 
 std::string wdpath = "/home/piotrek/Dokumenty/";
+std::string gamefilename="1.pgn";
+std::string gamepath=wdpath + "3dChess/games/" + gamefilename;
 
 //Procedura obsługi błędów
 void error_callback(int error, const char* description) {
@@ -224,13 +226,8 @@ void lightsinit(){
     spotLight.linear=0.09;
     spotLight.quadratic=0.032;
     spotLight.ambient=glm::vec3(1.0f, 1.0f, 1.0f);
-    spotLight.diffuse=glm::vec3(0.8f, 0.8f, 0.0f);
-
-    //spotLight.ambient=glm::vec3(0.5390625, 0.16796875, 0.8828125);
-    //spotLight.diffuse=glm::vec3(0.5390625, 0.16796875, 0.8828125);
-
-    //spotLight.specular=glm::vec3(0.8f, 0.8f, 0.0f);
-    spotLight.specular=glm::vec3(0.0f, 0.6f, 0.0f);
+    spotLight.diffuse=glm::vec3(0.0f, 1.0f, 0.0f);
+    spotLight.specular=glm::vec3(0.0f, 1.0f, 0.0f);
 
 }
 
@@ -239,12 +236,12 @@ void materialsinit(){
     boardMaterial.ambient=glm::vec3(1.0f, 0.5f, 0.31f);
     boardMaterial.diffuse=glm::vec3(1.0f, 0.5f, 0.31f);
     boardMaterial.specular=glm::vec3(0.508273,	0.508273,	0.508273);
-    boardMaterial.shininess=0.4f;
+    boardMaterial.shininess=32.0f;
 
     pieceMaterial.ambient=glm::vec3(1.0f, 0.5f, 0.31f);
     pieceMaterial.diffuse=glm::vec3(1.0f, 0.5f, 0.31f);
     pieceMaterial.specular=glm::vec3(0.5f, 0.5f, 0.5f);
-    pieceMaterial.shininess=32.0f;
+    pieceMaterial.shininess=2.0f;
 
 }
 
@@ -262,12 +259,9 @@ void texturesinit(){
 void initOpenGLProgram(GLFWwindow* window) {
 
     //************Tutaj umieszczaj kod, który należy wykonać raz, na początku programu************
-    //glClearColor(0, 0, 0, 1); //Czyść ekran na czarno
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f); //Czyść ekran na niebieskawo
+    glClearColor(0, 0, 0, 1); //Czyść ekran na czarno
+    //glClearColor(0.2f, 0.3f, 0.3f, 1.0f); //Czyść ekran na niebieskawo
     glEnable(GL_DEPTH_TEST); //Włącz używanie Z-Bufora
-
-    //glEnable(GL_LIGHTING); //Włącz tryb cieniowania
-    //glEnable(GL_LIGHT0); //Włącz domyslne światło
 
     modelsinit();
     lightsinit();
@@ -276,11 +270,6 @@ void initOpenGLProgram(GLFWwindow* window) {
 
     glfwSetKeyCallback(window, key_callback); //Zarejestruj procedurę obsługi klawiatury
     glfwSetScrollCallback(window, scroll_callback); //Zarejestruj procedure obslugi scrolla
-
-    char *w;
-    w = new char[256];
-
-    strcpy(w, wdpath.c_str());
 
     shaderProgram =new ShaderProgram("/home/piotrek/Dokumenty/3dChess/shaders/vshaderWithTexture.txt", NULL, "/home/piotrek/Dokumenty/3dChess/shaders/fshaderWithTexture.txt"); //Wczytaj program cieniujący
 
@@ -317,18 +306,11 @@ void initOpenGLProgram(GLFWwindow* window) {
         assignVBOtoAttribute(shaderProgram, "normal", PiecesVBO[pieceIndex].normalsBuffer, 3); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
         assignVBOtoAttribute(shaderProgram, "texcoord", PiecesVBO[pieceIndex].texCoordsBuffer, 2); //"normal" odnosi się do deklaracji "in vec4 normal;" w vertex shaderze
 
+        glBindVertexArray(0); //Dezaktywuj VAO
+
     }
 
-    glBindVertexArray(0); //Dezaktywuj VAO
-    //******Koniec przygotowania obiektu************
-
     glEnable(GL_NORMALIZE);
-    //glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,ambient);
-    //glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,diffuse);
-    //glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,specular);
-
-    //glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,shininess);
-
 
 }
 
@@ -377,11 +359,6 @@ void drawObject(GLuint vao, int vertexCount, ShaderProgram *shaderProgram, GLuin
     glUniform3f(shaderProgram->getUniformLocation("light1.specular"),lights[0].specular.r,lights[0].specular.g,lights[0].specular.b);
 
     glUniform3f(shaderProgram->getUniformLocation("cameraPosition"), camera.x, camera.y, camera.z);
-
-
-
-    //spotLight.direction=glm::vec3(-camera.x,-camera.y,-camera.z);
-    //spotLight.direction=glm::normalize(spotLight.direction);
 
     glUniform3f(shaderProgram->getUniformLocation("spotLight.position"), spotLight.position.x, spotLight.position.y, spotLight.position.z);
     glUniform3f(shaderProgram->getUniformLocation("spotLight.direction"), spotLight.direction.x, spotLight.direction.y, spotLight.direction.z);
@@ -445,10 +422,6 @@ void drawScene(GLFWwindow* window) {
     camera.y=sin(cameraVerticalAngle) * distanceFromTarget;
     camera.z=cos(cameraHorizontalAngle) * distanceFromTarget *cos(cameraVerticalAngle);
 
-    //lights[0].position.x=camera.x;
-    //lights[0].position.y=camera.y;
-    //lights[0].position.z=camera.z;
-
     glm::mat4 V = glm::lookAt(glm::vec3(camera.x, camera.y, camera.z), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
 
     //Narysuj plansze
@@ -476,7 +449,8 @@ int main(void)
     previousTile.Row = -1;
     previousTile.Column = 1;
 
-    game = new Game(wdpath + "3dChess/games/1.pgn");
+    //game = new Game(wdpath + "3dChess/games/1.pgn");
+    game= new Game(gamepath);
 
     GLFWwindow* window; //Wskaźnik na obiekt reprezentujący okno
 
@@ -508,7 +482,6 @@ int main(void)
 
     glfwSetTime(0); //Wyzeruj licznik czasu
 
-
     //Główna pętla
     while (!glfwWindowShouldClose(window)) //Tak długo jak okno nie powinno zostać zamknięte
     {
@@ -518,18 +491,12 @@ int main(void)
             previousTile = currentTile;
             currentTile = game->Move();
             if(currentTile.Row * currentTile.Column >= 0){
-                //glfwSetTime(0);
                 newMove = false;
-                //spotLight.position.x=currentTile.Row*16;
-                //spotLight.position.y=10.0f;
-                //spotLight.position.z=currentTile.Column*16;
-
                 if(previousTile.Column * previousTile.Row >= 0) {
                     spotLight.position.x = (TILECOUNT-1-previousTile.Column) * BOARDSIDESIZE / TILECOUNT - PIECEMOVINGCONSTANT;
                     spotLight.position.y = 10.0f;
                     spotLight.position.z = previousTile.Row * BOARDSIDESIZE / TILECOUNT - PIECEMOVINGCONSTANT;
                 }
-
             }
             else
             {
@@ -549,7 +516,6 @@ int main(void)
 
             if(newMove)break;
         }
-
 
         drawScene(window); //Wykonaj procedurę rysującą
         glfwPollEvents(); //Wykonaj procedury callback w zalezności od zdarzeń jakie zaszły.
